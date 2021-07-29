@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>by Alex Code blog</title>
+    <link>https://lanubisl.github.io/</link>
+    <description>Recent content on by Alex Code blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 28 Jul 2021 23:41:05 +0300</lastBuildDate><atom:link href="https://lanubisl.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Azure Api Management Automated Revisions</title>
+      <link>https://lanubisl.github.io/post/azure-api-management-automated-revisions/</link>
+      <pubDate>Wed, 28 Jul 2021 23:41:05 +0300</pubDate>
+      
+      <guid>https://lanubisl.github.io/post/azure-api-management-automated-revisions/</guid>
+      <description>Powershell script to deploy new WebAPI and release new API Management revision with zero downtime.</description>
+    </item>
+    
+  </channel>
+</rss>

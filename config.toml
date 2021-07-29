@@ -1,0 +1,14 @@
+baseURL = "https://lanubisl.github.io"
+languageCode = "en-us"
+title = "by Alex Code blog"
+theme = "hyde"
+
+[Menus]
+  main = [
+      {Name = "Github", URL = "https://github.com/lanubisl"},
+      {Name = "LinkedIn", URL = "https://www.linkedin.com/in/panfilenok"}
+  ]
+
+[params]
+  description = "Smart thoughts... and not very smart too!"
+  layoutReverse = false

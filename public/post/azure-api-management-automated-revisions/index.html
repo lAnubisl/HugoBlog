@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.86.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Azure Api Management Automated Revisions &middot; by Alex Code blog</title>
+  <meta name="description" content="" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://lanubisl.github.iocss/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://lanubisl.github.iocss/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://lanubisl.github.iocss/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://lanubisl.github.iocss/hyde.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container">
+    <div class="sidebar-about">
+      <a href="https://lanubisl.github.io"><h1>by Alex Code blog</h1></a>
+      <p class="lead">
+       Smart thoughts... and not very smart too! 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://lanubisl.github.io">Home</a> </li>
+        <li><a href="https://lanubisl.github.iopost">Posts</a> </li>
+        <li><a href="https://github.com/lanubisl" target="_blank"> Github </a></li><li><a href="https://www.linkedin.com/in/panfilenok" target="_blank"> LinkedIn </a></li>
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>Azure Api Management Automated Revisions</h1>
+  <time datetime=2021-07-28T23:41:05&#43;0300 class="post-date">Wed, Jul 28, 2021</time>
+  <p><a href="https://azure.microsoft.com/en-us/services/api-management/#overview">Azure API Management</a> is designed to be an internet face for your API. The main reason that I started using it is the build-in trottling engine that should protect my API from unexpected workloads. But Azure API Management can do more. It tries to solve API versioning problems by introducing &ldquo;<a href="https://docs.microsoft.com/en-us/azure/api-management/api-management-versions">Versions</a>&rdquo; and &ldquo;<a href="https://docs.microsoft.com/en-us/azure/api-management/api-management-revisions">Revisions</a>&rdquo;. The difference between those two is that &ldquo;Version&rdquo; is something that user decides to use by specifying URL part like &ldquo;/v1&rdquo; or &ldquo;/v2&rdquo; and &ldquo;Revision&rdquo; is the new version of particular version. By default API users are using the revision which developers forses them to use. Revisions is a good abstraction to use where you as a developer need to fix something in released API or introduce non-breaking changes. Here is my solution of how to automate new Azure API Management revisions delivery using powershell = your favorite CD tool:</p>
+<script type="application/javascript" src="https://gist.github.com/lAnubisl/d04b2697f86a9c2d74a8264e2f361317.js"></script>
+
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>
