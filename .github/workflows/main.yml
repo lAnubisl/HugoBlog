@@ -20,7 +20,7 @@ jobs:
         with:
           source-directory: 'public'
           destination-github-username: 'lanubisl'
-          destination-repository-name: 'lanubisl.github.io.git'
+          destination-repository-name: 'lanubisl.github.io'
           user-email: alexander.panfilenok@gmail.com
           commit-message: See ORIGIN_COMMIT from $GITHUB_REF
           target-branch: main
