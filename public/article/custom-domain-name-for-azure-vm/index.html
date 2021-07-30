@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.86.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Custom domain name for Azure VM &middot; by Alex Code blog</title>
+  <meta name="description" content="" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/hyde.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container">
+    <div class="sidebar-about">
+      <a href="https://byalexblog.net/"><h1>by Alex Code blog</h1></a>
+      <p class="lead">
+       Smart thoughts... and not very smart too! 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://byalexblog.net/">Home</a> </li>
+        <li><a href="https://byalexblog.net/articles">Articles</a> </li>
+        <li><a href="https://github.com/lanubisl" target="_blank"> Github </a></li><li><a href="https://www.linkedin.com/in/panfilenok" target="_blank"> LinkedIn </a></li>
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>Custom domain name for Azure VM</h1>
+  <time datetime=2015-10-04T23:33:03&#43;0300 class="post-date">Sun, Oct 4, 2015</time>
+  <p>If you are running VM on Azure you know that your default domain name looks like this: &ldquo;yourservicename.cloudapp.net&rdquo;. Also public IP address is not static that means you can&rsquo;t use &lsquo;A&rsquo; DNS record on it. If you want to use different domain name like &ldquo;john.com&rdquo; then you have 2 options:</p>
+<ul>
+<li>Use &lsquo;CNAME&rsquo; DNS record</li>
+<li>Use reserved IP record on Azure and &lsquo;A&rsquo; DNS record</li>
+</ul>
+<p>Here are the details about both of them.</p>
+<h2 id="use-cname-dns-record">Use CNAME DNS record</h2>
+<p>Azure VM gets dynamic public IP by default. This means that you cannot use &ldquo;A&rdquo; DNS record to address it. Your VM gets default domain name like &ldquo;yourservicename.cloudapp.net&rdquo; and you can use it to create canonical name reference from your &ldquo;john.com&rdquo; to &ldquo;yourservicename.cloudapp.net&rdquo;. BUT! your domain name provider can not support CNAME to different domain (my doesn&rsquo;t ;( ).</p>
+<h2 id="use-reserved-ip-record-on-azureand-a-dns-record">Use reserved IP record on Azure and &lsquo;A&rsquo; DNS record</h2>
+<p>As I said your VM has dynamic IP by default. Nevertheless you can create &ldquo;<a href="https://azure.microsoft.com/en-us/documentation/articles/virtual-networks-reserved-public-ip/">reserved IP address</a>&rdquo; to your subscription. As described on &ldquo;<a href="https://azure.microsoft.com/en-us/pricing/details/ip-addresses/">pricing page</a>&rdquo; you can have up to 5 reserved IP addresses for free.</p>
+<p>Download and install <a href="https://github.com/Azure/azure-powershell/releases">Azure PowerShell</a></p>
+<p>Open it and authorize using the following command</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">Add-AzureAccount 
+</code></pre></div><p>Get available locations using the following command</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">Get-AzureLocation | Select DisplayName
+</code></pre></div><p>you will see something like</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell"> DisplayName
+ -----------
+ Central US
+ South Central US
+ East US 2
+ North Europe
+ Southeast Asia
+ East Asia
+ Japan West
+</code></pre></div><p>Next you need to add reserved IP address to our subscription and specify location of your choice</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">New-AzureReservedIP <span style="color:#e6db74">&#34;MyReservedIP&#34;</span> -Label <span style="color:#e6db74">&#34;MyReservedIpLabel&#34;</span> -Location <span style="color:#e6db74">&#34;North Europe&#34;</span>
+</code></pre></div><p>Take your VM name. You can find it on Azure web portal in VMs listing table.</p>
+<p>Assign your reserved IP address to your vm</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">Set-AzureReservedIPAssociation -ReservedIPName MyReservedIP -ServiceName MyServiceName
+</code></pre></div><p>Now your VM&rsquo;s public IP should be changed. Also it should be static and you can use it for &lsquo;A&rsquo; DNS record.</p>
+<p>Profit!</p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.86.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>3 steps to create integration tests for your ASP.NET MVC 5 application &middot; by Alex Code blog</title>
+  <meta name="description" content="" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/hyde.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container">
+    <div class="sidebar-about">
+      <a href="https://byalexblog.net/"><h1>by Alex Code blog</h1></a>
+      <p class="lead">
+       Smart thoughts... and not very smart too! 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://byalexblog.net/">Home</a> </li>
+        <li><a href="https://byalexblog.net/articles">Articles</a> </li>
+        <li><a href="https://github.com/lanubisl" target="_blank"> Github </a></li><li><a href="https://www.linkedin.com/in/panfilenok" target="_blank"> LinkedIn </a></li>
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>3 steps to create integration tests for your ASP.NET MVC 5 application</h1>
+  <time datetime=2016-10-02T09:43:29&#43;0300 class="post-date">Sun, Oct 2, 2016</time>
+  <p><img src="/images/3-steps-integration-testing-aspnet-mvc/Integration-testing-1.jpg" alt=""></p>
+<p>When you develop an ASP.NET MVC application you should test it anyway. You can cover different parts of your application logic with unit tests or you can create tests that look like user interaction scenarios. These tests have several advantages over unit tests:</p>
+<ul>
+<li>These tests are independent of implementation and you can&rsquo;t break your test by refactoring (the only scenario when you should modify your test is functional requirement change).</li>
+<li>These tests are good documentation for your application.</li>
+<li>These tests can give you idea about what your users need and how will they supposed to use the specific feature.</li>
+</ul>
+<h2 id="step-1-host-your-application-for-testing">Step 1. Host your application for testing</h2>
+<p>The easiest way to host ASP.NET MVC application is to use IIS Express. To do this you need to run:</p>
+<pre><code>iisexpress.exe path:&quot;{0}&quot; port:{1}
+</code></pre><p>where <strong>path</strong> is the physical path to your application sources and <strong>port</strong> is the port number you would like IIS Express to use. </p>
+<p>In a test project you can run this as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"> <span style="color:#66d9ef">var</span> programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+ <span style="color:#66d9ef">var</span> iisProcess = <span style="color:#66d9ef">new</span> Process();
+ iisProcess.StartInfo.FileName = programFiles + <span style="color:#e6db74">@&#34;\IIS Express\iisexpress.exe&#34;</span>;
+ iisProcess.StartInfo.Arguments = <span style="color:#e6db74">$&#34;/path:\&#34;</span>{applicationPath}<span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">&#34; /port:{8080}&#34;</span>;
+ iisProcess.Start();
+</code></pre></div><p>You can use the following to calculate absolute physical path from relative path to your web application:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#66d9ef">string</span> GetApplicationPath()
+ {
+     <span style="color:#66d9ef">return</span> Path.GetFullPath(
+         Path.Combine(
+             GetCurrentDirectory(), 
+             <span style="color:#e6db74">&#34;../../../MyApplication.Web&#34;</span>
+         )
+     );
+ }
+
+ <span style="color:#66d9ef">string</span> GetCurrentDirectory()
+ {
+     <span style="color:#66d9ef">return</span> Path.GetDirectoryName(
+         Uri.UnescapeDataString(
+             <span style="color:#66d9ef">new</span> UriBuilder(
+                 Assembly.GetExecutingAssembly().CodeBase
+             ).Path
+         )
+     );
+ }
+</code></pre></div><p>there is one little thing we should do to be sure that application is fully initialized. We should make the first request to it. Why this is important will be shown later in step 3.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"> <span style="color:#66d9ef">using</span> (<span style="color:#66d9ef">var</span> client = <span style="color:#66d9ef">new</span> HttpClient())
+ {
+     client.SendAsync(
+         <span style="color:#66d9ef">new</span> HttpRequestMessage(
+             HttpMethod.Get, 
+             <span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>
+         )
+     ).Wait();
+ }
+</code></pre></div><h2 id="step-2-select-testing-strategy">Step 2. Select testing strategy</h2>
+<p>The correct way to test web application as a unit is to interact with it the same way as user does using web browser. We need <a href="https://www.nuget.org/packages/Selenium.WebDriver/">Selenium.WebDriver</a> (browser automation tool), <a href="https://www.nuget.org/packages/Selenium.Support/">Selenium.Support</a> (support classes) and one of the browser drivers like <a href="https://www.nuget.org/packages/Selenium.WebDriver.IEDriver/">Selenium.WebDriver.IEDriver</a> or <a href="https://www.nuget.org/packages/Selenium.WebDriver.ChromeDriver/">Selenium.WebDriver.ChromeDriver</a>. We also need <a href="https://www.nuget.org/packages/SpecFlow/">SpecFlow</a> as testing framework. <br>
+SpecFlow allows us to write test scenarios in <a href="https://en.wikipedia.org/wiki/Cucumber_(software)">Gherkin</a> language which looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-gherkin" data-lang="gherkin"><span style="color:#a6e22e"> Feature: Authentication
+</span><span style="color:#a6e22e">     As a Heroes of Storm Administrator
+</span><span style="color:#a6e22e">     In order to feel that character control is in secure
+</span><span style="color:#a6e22e">     </span><span style="color:#66d9ef">I </span><span style="color:#a6e22e">want to have administration tool secured by username and password
+</span><span style="color:#a6e22e">
+</span><span style="color:#a6e22e"> </span><span style="color:#66d9ef">Scenario:</span><span style="color:#a6e22e"> Being able to authenticate
+</span><span style="color:#a6e22e"></span><span style="color:#66d9ef">     Given </span><span style="color:#a6e22e">there is are following users in the system
+</span><span style="color:#a6e22e"></span><span style="color:#66d9ef">         |</span><span style="color:#e6db74"> Name</span><span style="color:#66d9ef">  |</span><span style="color:#e6db74"> Password</span><span style="color:#66d9ef"> |</span><span style="color:#a6e22e">
+</span><span style="color:#a6e22e"></span><span style="color:#66d9ef">         |</span><span style="color:#e6db74"> Megan</span><span style="color:#66d9ef"> |</span><span style="color:#e6db74"> 123456</span><span style="color:#66d9ef">   |</span><span style="color:#a6e22e">
+</span><span style="color:#a6e22e">     </span><span style="color:#66d9ef">When </span><span style="color:#a6e22e">I navigate to &#34;</span><span style="color:#e6db74">Listing</span><span style="color:#a6e22e">&#34; page
+</span><span style="color:#a6e22e">     </span><span style="color:#66d9ef">Then </span><span style="color:#a6e22e">I should be on &#34;</span><span style="color:#e6db74">Login</span><span style="color:#a6e22e">&#34; page
+</span><span style="color:#a6e22e">     </span><span style="color:#66d9ef">When </span><span style="color:#a6e22e">I fill in controls as follows
+</span><span style="color:#a6e22e"></span><span style="color:#66d9ef">         |</span><span style="color:#e6db74"> Name</span><span style="color:#66d9ef">     |</span><span style="color:#e6db74"> Value</span><span style="color:#66d9ef">  |</span><span style="color:#a6e22e">
+</span><span style="color:#a6e22e"></span><span style="color:#66d9ef">         |</span><span style="color:#e6db74"> UserName</span><span style="color:#66d9ef"> |</span><span style="color:#e6db74"> Megan</span><span style="color:#66d9ef">  |</span><span style="color:#a6e22e">
+</span><span style="color:#a6e22e"></span><span style="color:#66d9ef">         |</span><span style="color:#e6db74"> Password</span><span style="color:#66d9ef"> |</span><span style="color:#e6db74"> 123456</span><span style="color:#66d9ef"> |</span><span style="color:#a6e22e">
+</span><span style="color:#a6e22e">     </span><span style="color:#66d9ef">And </span><span style="color:#a6e22e">I click &#34;</span><span style="color:#e6db74">Sign In</span><span style="color:#a6e22e">&#34; button
+</span><span style="color:#a6e22e">     </span><span style="color:#66d9ef">Then </span><span style="color:#a6e22e">I should be on “Listing” page
+</span></code></pre></div><p>For each line of this scenario SpecFlow will generate a function with <strong>given, when</strong> or <strong>then</strong> attribute that has regexp string. </p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#a6e22e"> [Then(@&#34;I should see text &#34;&#34;(.*)&#34;&#34;&#34;)]</span>
+ <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> ShouldSeeText(<span style="color:#66d9ef">string</span> text)
+ {
+     <span style="color:#66d9ef">var</span> elements = BrowserDriver.FindElementsByXPath(<span style="color:#e6db74">$&#34;.//*[text() = \&#34;</span>{text}<span style="color:#960050;background-color:#1e0010">\</span><span style="color:#e6db74">&#34;]&#34;</span>);
+     Assert.That(elements.Any());
+ }
+</code></pre></div><p>As you can see, you can then use these functions to organize browser interaction.</p>
+<h2 id="step-3-mocking-application-components">Step 3. Mocking application components</h2>
+<p><img src="/images/3-steps-integration-testing-aspnet-mvc/integration-testing-mock-component.png" alt=""></p>
+<p>Having steps 1 and 2 done, you already can test your application. But this will be a System Testing or End-To-End testing because you have a real application and you are interacting with it as a real user. In this case you need to have all components working including database and third-party services integration. What if you want to pre-set some state or each individual testing scenario? Well. You will have to initiate state in database and you will have to do something with third-party service as well. This can be very difficult. So here is the way how to <strong>mock components in working asp.net mvc application</strong>.</p>
+<p>We need to make a reference to <a href="https://www.nuget.org/packages/Deleporter/">Deleporter</a> package in Web project as well as in test project. After this we need to add httpModule in Web.config file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"> <span style="color:#f92672">&lt;modules&gt;</span>
+     <span style="color:#f92672">&lt;add</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;DeleporterServerModule&#34;</span> 
+          <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;DeleporterCore.Server.DeleporterServerModule, Deleporter&#34;</span> <span style="color:#f92672">/&gt;</span>
+ <span style="color:#f92672">&lt;/modules&gt;</span>
+</code></pre></div><p>Also we need to configure this module</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;configSections&gt;</span>
+     <span style="color:#f92672">&lt;section</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;deleporter&#34;</span> 
+              <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;DeleporterCore.Configuration.DeleporterConfigurationSection, Deleporter&#34;</span><span style="color:#f92672">/&gt;</span>
+ <span style="color:#f92672">&lt;/configSections&gt;</span>
+ <span style="color:#f92672">&lt;deleporter</span> <span style="color:#a6e22e">RemotingPort=</span><span style="color:#e6db74">&#34;38473&#34;</span> <span style="color:#a6e22e">WebHostPort=</span><span style="color:#e6db74">&#34;8080&#34;</span> <span style="color:#a6e22e">LoggingEnabled=</span><span style="color:#e6db74">&#34;true&#34;</span> <span style="color:#f92672">/&gt;</span>
+</code></pre></div><p>This module opens tcp socket on port number 38473 if and only if application is running in &ldquo;Debug&rdquo; mode and on port 8080. It is listening for remote commands to execute. And this is why we made web request in step 1, to initialize this module.</p>
+<p>Now we need to make a reference to Deleporter in test project and now we can do:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">Deleporter.Run(() =&gt;
+ {
+     <span style="color:#66d9ef">var</span> repository = <span style="color:#66d9ef">new</span> Mock&lt;IGenericRepository&lt;Account&gt;&gt;();
+     repository.Setup(x =&gt; x.Entities).Returns(accounts.AsQueryable());
+     Global.Container.Mock&lt;IGenericRepository&lt;Account&gt;&gt;(repository.Object);
+ });
+</code></pre></div><p>Deleporter will serialize the delegate, pass through tcp channel, deserialize it in web application and execute. Few important notes to make it happen:</p>
+<ul>
+<li>All classes within the delegate should be serializable</li>
+<li>All classes within the delegate should be referenced in web application. (If you are using mocking library then you should have a reference to it in web project too)</li>
+<li>You should implement component replacement functionality for your IOC container.</li>
+</ul>
+<p>In my case Global.Container is the reference to IOC container and Mock<!-- raw HTML omitted -->() is the function that removes default component and replaces it with everything I want in runtime.</p>
+<p>This is it. If you want to see all this in action please take a look at <a href="https://github.com/lAnubisl/WebApplicationsDevelopmentLessons/tree/master/Lesson%2019%20-%20Testing/Integration%20testing/ASP.NET%20MVC">this github repo</a>.</p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>

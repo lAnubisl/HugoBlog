@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.86.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>RabbitMQ poisoned messages handling &middot; by Alex Code blog</title>
+  <meta name="description" content="" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/hyde.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container">
+    <div class="sidebar-about">
+      <a href="https://byalexblog.net/"><h1>by Alex Code blog</h1></a>
+      <p class="lead">
+       Smart thoughts... and not very smart too! 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://byalexblog.net/">Home</a> </li>
+        <li><a href="https://byalexblog.net/articles">Articles</a> </li>
+        <li><a href="https://github.com/lanubisl" target="_blank"> Github </a></li><li><a href="https://www.linkedin.com/in/panfilenok" target="_blank"> LinkedIn </a></li>
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>RabbitMQ poisoned messages handling</h1>
+  <time datetime=2016-02-09T22:59:03&#43;0300 class="post-date">Tue, Feb 9, 2016</time>
+  <h2 id="1-the-problem">1. The Problem</h2>
+<p>You never know what will come from remote system. Even if you keep everything under control, there always can be something unexpected. In microservice architecture each component must be ready for everything.<br>
+When your software architecture involves message queue broker (like RabbitMQ) the interaction between your micro services looks like follows:</p>
+<p><img src="/images/rabbitmq-poisoned-messages-handeling/message-queue.png" alt=""></p>
+<p>The problem is that if message consumer is not able to handle message, the message will be returned to queue broker and then will be delivered to the message consumer once again for the second attempt.</p>
+<p>Here are the reasons why consumer can fail during message handling:</p>
+<ul>
+<li>Message is corrupted (bad format)</li>
+<li>Message tells lie (external resources that should be related to the message are invalid or don’t exist)</li>
+<li>Consumer crash due to internal logic bug</li>
+<li>Consumer crash due to external communication issue (networking, database, etc.)</li>
+<li>Consumer manual restart (planned)</li>
+</ul>
+<p>At first glance, all these issues must be caught and handled in one way or another. We can also have general mechanism that gives each individual message some retries count to be handled by consumer. And then if consumer still cannot handle the message we must remove the message from the working queue and put it somewhere for detailed analysis.</p>
+<h2 id="2-general-requirements">2. General Requirements</h2>
+<p>To give each individual message some kind of ‘retries counter’, we have to store this counter value somewhere for each individual message. Once this counter value exceeds maximum allowed value, the message must be removed from the working queue.</p>
+<h2 id="3-documentation-overview">3. Documentation Overview</h2>
+<h3 id="31-no-such-functionality">3.1. No Such Functionality</h3>
+<p>As described <a href="http://stackoverflow.com/questions/23158310/how-do-i-set-a-number-of-retry-attempts-in-rabbitmq">on Stack Overflow</a>, there is no such functionality in RabbitMQ. This question was also <a href="http://lists.rabbitmq.com/pipermail/rabbitmq-discuss/2013-January/025020.html">discussed in RabbitMQ letters</a>, <a href="http://kjnilsson.github.io/blog/2014/01/30/spread-the-poison/">blogs</a> and <a href="http://rabbitmq.1065348.n5.nabble.com/dealing-with-poison-pill-messages-td1548.html">forums</a>.</p>
+<h3 id="32-dead-letter-exchange">3.2. Dead Letter Exchange</h3>
+<p>As part of queue configuration, there is an ability to set ‘dead letter exchange’. <a href="https://www.rabbitmq.com/dlx.html">RabbitMQ documentation</a> describes the purpose of this feature as follows:<br>
+Messages from a queue can be &lsquo;dead-lettered&rsquo;; that is, republished to another exchange when any of the following events occur:<br>
+•    The message is rejected (basic.reject or basic.nack) with requeue=false,<br>
+•    The TTL for the message expires; or<br>
+•    The queue length limit is exceeded.</p>
+<h2 id="4-selected-strategy">4. Selected Strategy</h2>
+<h3 id="41-point-of-view">4.1. Point Of View</h3>
+<p>The general requirement is to store retries counter somewhere. There are 2 places where this value can be stored:</p>
+<ul>
+<li>In message itself</li>
+<li>Not in message</li>
+</ul>
+<p>First option is preferred because in this case we do not need any external storage that must support distributed access for all consumers.</p>
+<h3 id="42-incoming-message-structure">4.2. Incoming Message Structure</h3>
+<p>Each message contains message body and message headers. Message body is the specific information the message was created for. Message header is usually system information that allows message brocker to route messages and store other &ldquo;non-user&rdquo; information. So the best place to store retries counter (as I can see it) is <strong>message headers</strong> that are string – object map. These headers are pretty much the same as HTTP headers. So the Idea is to have something like this: <strong>x-delivery-attempts: 3</strong>.</p>
+<h3 id="43solution">4.3. Solution</h3>
+<p>Here is the component diagram that shows the general Idea</p>
+<p>Here is the algorithm for different scenarios:</p>
+<p><strong>Scenario A: Works as expected</strong></p>
+<ol>
+<li>Producer puts message to queue</li>
+<li>Consumer gets message from queue</li>
+<li>Consumer handles message</li>
+<li>Consumer acknowledges message</li>
+<li>Queue removes the message</li>
+</ol>
+<p><strong>Scenario B: Poisoned message</strong></p>
+<ol>
+<li>Producer puts message to queue</li>
+<li>Consumer gets message from queue</li>
+<li>Consumer checks if x-delivery-attempt by &gt; {max allowed retries}</li>
+<li>Consumer fails handling message but not crashes</li>
+<li>Consumer creates message copy</li>
+<li>Consumer increments x-delivery-attempt by 1 and sets this header to message copy</li>
+<li>Consumer puts message copy to the tail of queue </li>
+<li>Consumer acknowledges original message</li>
+<li>Queue removes the original message</li>
+<li>Repeat steps 2-8 {max allowed retries} - 1 times</li>
+<li>Consumer gets message from queue</li>
+<li>Consumer checks if x-delivery-attempt by &gt; {max allowed retries}</li>
+<li>Consumer rejects the message with require = false</li>
+<li>Queue marks message as ‘x-death’</li>
+<li>Queue moves message to dead-letter-exchange</li>
+</ol>
+<p><strong>Scenario C: Consumer crushes unexpectedly</strong></p>
+<ol>
+<li>Producer puts message to queue</li>
+<li>Consumer gets message from queue</li>
+<li>Consumer crushes</li>
+<li>Queue detects connectivity break to consumer</li>
+<li>Queue marks message with Redelivery = true</li>
+<li>Consumer gets message from queue</li>
+<li>Consumer detects redelivery = true</li>
+<li>Consumer creates message copy</li>
+<li>Consumer increments x-delivery-attempt by 1 and set this header to message copy</li>
+<li>Consumer puts message copy to the tail of queue</li>
+<li>Scenario A or Scenario B</li>
+</ol>
+<p><strong>Scenario C explanation</strong>:<br>
+Consumer should not handle redelivered messages because previous attempt finished unexpectedly and there is no guarantee it will not happen again.</p>
+<h3 id="44-dead-letter-exchange-configuration">4.4. Dead-Letter-Exchange Configuration</h3>
+<p>As described in RabbitMQ documentation, there is an ability to configure this option using console mode or via administrative web-portal. The queue will detect dead letters automatically based on TTL, Max-length, or consumer rejects with require argument = false</p>
+<h3 id="imagesrabbitmq-poisoned-messages-handelingx-dead-letter-exchangepng"><img src="/images/rabbitmq-poisoned-messages-handeling/x-dead-letter-exchange.png" alt=""></h3>
+<h3 id="45-limitation">4.5. Limitation</h3>
+<p>As you can see, each time when something goes wrong, the message goes to the tail of queue. </p>
+<ul>
+<li>Thus, message order breaks and this solution can be unacceptable if you need the message order.</li>
+<li>For case of long queue and time-consuming operations, the message will reach the consumer once again with significant delay. This also can be unacceptable for some systems.</li>
+</ul>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>

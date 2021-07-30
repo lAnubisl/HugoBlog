@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.86.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Merge SQL databases &middot; by Alex Code blog</title>
+  <meta name="description" content="" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://byalexblog.net/css/hyde.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container">
+    <div class="sidebar-about">
+      <a href="https://byalexblog.net/"><h1>by Alex Code blog</h1></a>
+      <p class="lead">
+       Smart thoughts... and not very smart too! 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://byalexblog.net/">Home</a> </li>
+        <li><a href="https://byalexblog.net/articles">Articles</a> </li>
+        <li><a href="https://github.com/lanubisl" target="_blank"> Github </a></li><li><a href="https://www.linkedin.com/in/panfilenok" target="_blank"> LinkedIn </a></li>
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>Merge SQL databases</h1>
+  <time datetime=2016-05-27T11:55:25&#43;0300 class="post-date">Fri, May 27, 2016</time>
+  <p>Imagine you have 2 databases with identical schema. These databases were working for different application instances for some time. And now you need to merge them together for some reason.</p>
+<p>You can use different tools to achieve this goal. For example <a href="https://www.devart.com/ru/dbforge/sql/datacompare/">dbForge Data Compare</a> or <a href="http://www.red-gate.com/products/sql-development/sql-data-compare/">SQL Data Compare</a>. But these tools cost money and if you don&rsquo;t merge databases every day this is probably not an option for you. Also these tools does not know full specific of your database structure including unique indexes, check constraints and triggers.</p>
+<p>Another big deal is identity columns that are using as primary keys. For two databases these keys can be same but represent different entities. </p>
+<p>In my practice I face database merge task second time and here is how I handle it.</p>
+<h2 id="step-1-identify-tables-that-must-be-merged">Step 1. Identify tables that must be merged.</h2>
+<p>If you need to merge only several tables of hundred you probably don&rsquo;t want to have a deal with full database schema. You also definitely want to skip lookup tables such as &ldquo;AddressType&rdquo; it it holds only records like &ldquo;1 | Home&rdquo; and &ldquo;2 | Business&rdquo;.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"> use TargetDB;
+ <span style="color:#66d9ef">go</span>
+
+ <span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span>TablesToImport <span style="color:#66d9ef">table</span> 
+ (
+   Name nvarchar(<span style="color:#ae81ff">128</span>)
+ )
+
+ <span style="color:#66d9ef">insert</span> <span style="color:#66d9ef">into</span> <span style="color:#f92672">@</span>TablesToImport (Name) <span style="color:#66d9ef">values</span> 
+   (<span style="color:#e6db74">&#39;Users&#39;</span>), (<span style="color:#e6db74">&#39;Orders&#39;</span>), (<span style="color:#e6db74">&#39;Products&#39;</span>), (<span style="color:#e6db74">&#39;Categories&#39;</span>)
+</code></pre></div><h2 id="step-2-get-information-about-identity-columns">Step 2. Get information about identity columns.</h2>
+<p>Identity columns are important. Usually they are used as Primary Keys for table rows. But if two databases were working for different application instances you can think that even if identity primary keys are the same for User table for example they represent different entities and there should be no duplicate records. In this case you need to modify all identity primary keys in source database to make data graphs non-overlapped. But first, you need to identify these identity columns.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"> <span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span>TableInformation <span style="color:#66d9ef">table</span> 
+ (
+   [<span style="color:#66d9ef">Schema</span>] nvarchar(<span style="color:#ae81ff">128</span>),
+   Name nvarchar(<span style="color:#ae81ff">128</span>),
+   IdentityColumn nvarchar(<span style="color:#ae81ff">128</span>),
+   MaxIdentity bigint
+ )
+
+ <span style="color:#75715e">-- SCAN SYSTEM TABLES
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">insert</span> <span style="color:#66d9ef">into</span> <span style="color:#f92672">@</span>TableInformation 
+ (
+   [<span style="color:#66d9ef">Schema</span>], 
+   [Name], 
+   [IdentityColumn]
+ ) <span style="color:#66d9ef">select</span> 
+     TABLE_SCHEMA, 
+     <span style="color:#66d9ef">TABLE_NAME</span>, 
+     <span style="color:#66d9ef">COLUMN_NAME</span>
+   <span style="color:#66d9ef">from</span> INFORMATION_SCHEMA.COLUMNS
+   <span style="color:#66d9ef">where</span> COLUMNPROPERTY(
+     OBJECT_ID(<span style="color:#66d9ef">TABLE_NAME</span>), 
+     <span style="color:#66d9ef">COLUMN_NAME</span>, 
+     <span style="color:#e6db74">&#39;IsIdentity&#39;</span>) <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+   <span style="color:#66d9ef">and</span> OBJECTPROPERTY(
+     OBJECT_ID(TABLE_SCHEMA <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.&#39;</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">TABLE_NAME</span>), 
+     <span style="color:#e6db74">&#39;IsTable&#39;</span>) <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+   <span style="color:#66d9ef">and</span> <span style="color:#66d9ef">TABLE_NAME</span> <span style="color:#66d9ef">in</span>
+   (
+     <span style="color:#66d9ef">select</span> [Name] 
+     <span style="color:#66d9ef">from</span> <span style="color:#f92672">@</span>TablesToImport
+   )
+</code></pre></div><h2 id="step-3-calculate-max-identity-value">Step 3. Calculate max identity value.</h2>
+<p>Now you have Table that contain all identity column information. Next you beed to find the greatedt identity value for all tables and calculate max value among all of your tables</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Schema</span> nvarchar(<span style="color:#ae81ff">128</span>),
+   <span style="color:#f92672">@</span>Name NVARCHAR(<span style="color:#ae81ff">128</span>),
+   <span style="color:#f92672">@</span>IdentityColumn NVARCHAR(<span style="color:#ae81ff">128</span>);
+
+ <span style="color:#66d9ef">declare</span> TablesCursor <span style="color:#66d9ef">cursor</span> <span style="color:#66d9ef">for</span> 
+   <span style="color:#66d9ef">select</span> [<span style="color:#66d9ef">Schema</span>], [Name], [IdentityColumn] 
+   <span style="color:#66d9ef">from</span> <span style="color:#f92672">@</span>TableInformation
+
+ <span style="color:#66d9ef">open</span> TablesCursor
+
+ <span style="color:#66d9ef">fetch</span> <span style="color:#66d9ef">next</span> <span style="color:#66d9ef">from</span> TablesCursor 
+   <span style="color:#66d9ef">into</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Schema</span>, <span style="color:#f92672">@</span>Name, <span style="color:#f92672">@</span>IdentityColumn;
+
+ while <span style="color:#f92672">@@</span>FETCH_STATUS <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+ <span style="color:#66d9ef">begin</span>
+   <span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Select</span> nvarchar (<span style="color:#66d9ef">max</span>),
+     <span style="color:#f92672">@</span>ParmDefinition nvarchar(<span style="color:#ae81ff">500</span>),
+     <span style="color:#f92672">@</span><span style="color:#66d9ef">Result</span> bigint;
+
+   <span style="color:#75715e">-- GENERATE DYNAMIC SQL STATEMENT	
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">set</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Select</span> <span style="color:#f92672">=</span> N<span style="color:#e6db74">&#39;select @Result = 
+</span><span style="color:#e6db74">     max(&#39;</span> <span style="color:#f92672">+</span> <span style="color:#f92672">@</span>IdentityColumn <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;) from &#39;</span> <span style="color:#f92672">+</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Schema</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.&#39;</span> <span style="color:#f92672">+</span> <span style="color:#f92672">@</span>Name
+   <span style="color:#66d9ef">set</span> <span style="color:#f92672">@</span>ParmDefinition <span style="color:#f92672">=</span> N<span style="color:#e6db74">&#39;@Result bigint output&#39;</span>;
+
+   <span style="color:#75715e">-- EXECUTE DYNAMIC SQL STATEMENT
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">exec</span> sp_executesql <span style="color:#f92672">@</span><span style="color:#66d9ef">Select</span>, <span style="color:#f92672">@</span>ParmDefinition, <span style="color:#f92672">@</span><span style="color:#66d9ef">Result</span> <span style="color:#f92672">=</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Result</span> <span style="color:#66d9ef">output</span>;
+
+   <span style="color:#75715e">-- UPDATE MaxIdentity for Identity Column
+</span><span style="color:#75715e"></span>     <span style="color:#66d9ef">update</span> <span style="color:#f92672">@</span>TableInformation 
+       <span style="color:#66d9ef">set</span> MaxIdentity <span style="color:#f92672">=</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Result</span> 
+       <span style="color:#66d9ef">where</span> [<span style="color:#66d9ef">Schema</span>] <span style="color:#f92672">=</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Schema</span> 
+       <span style="color:#66d9ef">and</span> [Name] <span style="color:#f92672">=</span> <span style="color:#f92672">@</span>Name 
+       <span style="color:#66d9ef">and</span> [IdentityColumn] <span style="color:#f92672">=</span> <span style="color:#f92672">@</span>IdentityColumn
+
+   <span style="color:#66d9ef">fetch</span> <span style="color:#66d9ef">next</span> <span style="color:#66d9ef">from</span> TablesCursor 
+     <span style="color:#66d9ef">into</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Schema</span>, <span style="color:#f92672">@</span>Name, <span style="color:#f92672">@</span>IdentityColumn;
+ <span style="color:#66d9ef">end</span>
+
+ <span style="color:#66d9ef">close</span> TablesCursor
+ <span style="color:#66d9ef">deallocate</span> TablesCursor
+
+ <span style="color:#75715e">-- DISPLAY TableInformation
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> <span style="color:#f92672">@</span>TableInformation
+
+ <span style="color:#75715e">-- DISPLAY MaxIdentity
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">MAX</span>(MaxIdentity) <span style="color:#66d9ef">from</span> <span style="color:#f92672">@</span>TableInformation
+
+</code></pre></div><h2 id="step-4-identifyforeign-keys-that-needs-to-be-incremented-along-with-primary-keys">Step 4. Identify Foreign keys that needs to be incremented along with Primary keys.</h2>
+<p>In step 3 you calculated the biggest identity value among all tables that must be merged. Now we are ready to increase all identities in source database. But you have to keep in mind that all references must not be broken. Because of that we have to identify all Foreign Keys for identity columns and increase them too.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">use SourceDB;
+ <span style="color:#66d9ef">go</span>
+
+ <span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Increment</span> bigint
+ <span style="color:#66d9ef">set</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Increment</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">6000</span> <span style="color:#75715e">-- value from step 3
+</span><span style="color:#75715e"></span>
+ <span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span>TablesToImport <span style="color:#66d9ef">table</span> 
+ (
+   [Name] nvarchar(<span style="color:#ae81ff">128</span>)
+ )
+
+ <span style="color:#66d9ef">insert</span> <span style="color:#66d9ef">into</span> <span style="color:#f92672">@</span>TablesToImport (Name) <span style="color:#66d9ef">values</span> 
+   (<span style="color:#e6db74">&#39;Users&#39;</span>), (<span style="color:#e6db74">&#39;Orders&#39;</span>), (<span style="color:#e6db74">&#39;Products&#39;</span>), (<span style="color:#e6db74">&#39;Categories&#39;</span>)
+
+ <span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span>FkToIncrement <span style="color:#66d9ef">table</span> 
+ (
+   [<span style="color:#66d9ef">Schema</span>] nvarchar(<span style="color:#ae81ff">128</span>),
+   [<span style="color:#66d9ef">Table</span>] nvarchar(<span style="color:#ae81ff">128</span>),
+   [<span style="color:#66d9ef">Column</span>] nvarchar(<span style="color:#ae81ff">128</span>)
+ )
+
+ <span style="color:#75715e">-- SCAN SYSTEM TABLES
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">insert</span> <span style="color:#66d9ef">into</span> <span style="color:#f92672">@</span>FkToIncrement ([<span style="color:#66d9ef">Schema</span>], [<span style="color:#66d9ef">Table</span>], [<span style="color:#66d9ef">Column</span>])
+ <span style="color:#66d9ef">select</span>
+   sc.TABLE_SCHEMA,
+   t.name [<span style="color:#66d9ef">table</span>], 
+   <span style="color:#66d9ef">c</span>.name ForeignKeyColumn 
+ <span style="color:#66d9ef">from</span> sys.foreign_key_columns <span style="color:#66d9ef">as</span> fk
+   <span style="color:#66d9ef">inner</span> <span style="color:#66d9ef">join</span> sys.tables <span style="color:#66d9ef">as</span> t 
+     <span style="color:#66d9ef">on</span> fk.parent_object_id <span style="color:#f92672">=</span> t.object_id
+   <span style="color:#66d9ef">inner</span> <span style="color:#66d9ef">join</span> sys.columns <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">c</span> 
+     <span style="color:#66d9ef">on</span> fk.parent_object_id <span style="color:#f92672">=</span> <span style="color:#66d9ef">c</span>.object_id 
+     <span style="color:#66d9ef">and</span> fk.parent_column_id <span style="color:#f92672">=</span> <span style="color:#66d9ef">c</span>.column_id
+   <span style="color:#66d9ef">inner</span> <span style="color:#66d9ef">join</span> INFORMATION_SCHEMA.COLUMNS sc
+     <span style="color:#66d9ef">on</span> sc.<span style="color:#66d9ef">TABLE_NAME</span> <span style="color:#f92672">=</span> t.name
+     <span style="color:#66d9ef">and</span> sc.<span style="color:#66d9ef">COLUMN_NAME</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">c</span>.name
+ <span style="color:#66d9ef">where</span> fk.referenced_object_id <span style="color:#66d9ef">in</span> 
+   (
+     <span style="color:#66d9ef">select</span> object_id 
+     <span style="color:#66d9ef">from</span> sys.tables 
+     <span style="color:#66d9ef">where</span> name <span style="color:#66d9ef">in</span> 
+     (
+       <span style="color:#66d9ef">select</span> [Name] 
+       <span style="color:#66d9ef">from</span> <span style="color:#f92672">@</span>TablesToImport
+     )
+   )
+   <span style="color:#66d9ef">and</span> t.name <span style="color:#66d9ef">in</span> 
+   (
+     <span style="color:#66d9ef">select</span> [Name] 
+       <span style="color:#66d9ef">from</span> <span style="color:#f92672">@</span>TablesToImport
+   )
+</code></pre></div><h2 id="step-5-remove-all-fulltext-indexed-foreign-keys-and-primary-keys">Step 5. Remove all FullText indexed, Foreign Keys and Primary keys.</h2>
+<p>Now we need to remove everything that can stop us to change PK and FK column values. I recommend to delete FullText Indexes, Foreign Keys and Primary Keys. And that&rsquo;s why we identify FK columns step before (because after this step we will not be able to recognize them).</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"> <span style="color:#75715e">-- REMOVE ALL FULLTEXT INDEXES
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span>dropFtSql nvarchar(<span style="color:#66d9ef">max</span>)
+ <span style="color:#66d9ef">set</span> <span style="color:#f92672">@</span>dropFtSql <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+
+ <span style="color:#66d9ef">select</span> <span style="color:#f92672">@</span>dropFtSql <span style="color:#f92672">=</span> <span style="color:#f92672">@</span>dropFtSql 
+   <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;drop fulltext index on &#39;</span> <span style="color:#f92672">+</span> t.name <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;;&#39;</span>
+   <span style="color:#66d9ef">from</span> sys.tables t 
+   <span style="color:#66d9ef">inner</span> <span style="color:#66d9ef">join</span> sys.fulltext_indexes fi 
+     <span style="color:#66d9ef">on</span> t.[object_id] <span style="color:#f92672">=</span> fi.[object_id] 
+
+ <span style="color:#66d9ef">if</span> (<span style="color:#f92672">@</span>dropFtSql <span style="color:#f92672">&lt;&gt;</span> <span style="color:#e6db74">&#39;&#39;</span>)
+ <span style="color:#66d9ef">begin</span>
+   <span style="color:#66d9ef">execute</span> (<span style="color:#f92672">@</span>dropFtSql)
+ <span style="color:#66d9ef">end</span>   
+ print <span style="color:#e6db74">&#39;all fulltext indexes are removed&#39;</span>
+
+ <span style="color:#75715e">-- REMOVE ALL FOREIGN KEYS
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span>removeFkSql nvarchar(<span style="color:#66d9ef">MAX</span>) 
+ <span style="color:#66d9ef">set</span> <span style="color:#f92672">@</span>removeFkSql <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+
+ <span style="color:#66d9ef">select</span> <span style="color:#f92672">@</span>removeFkSql <span style="color:#f92672">=</span> <span style="color:#f92672">@</span>removeFkSql <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;alter table &#39;</span> 
+   <span style="color:#f92672">+</span> QUOTENAME(<span style="color:#66d9ef">CONSTRAINT_SCHEMA</span>) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.&#39;</span> 
+   <span style="color:#f92672">+</span> QUOTENAME(<span style="color:#66d9ef">TABLE_NAME</span>) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39; drop constraint &#39;</span> 
+   <span style="color:#f92672">+</span> QUOTENAME(<span style="color:#66d9ef">CONSTRAINT_NAME</span>) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;; &#39;</span> 
+ <span style="color:#66d9ef">from</span> INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+   <span style="color:#66d9ef">where</span> CONSTRAINT_TYPE <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;FOREIGN KEY&#39;</span>
+
+ <span style="color:#66d9ef">if</span> (<span style="color:#f92672">@</span>removeFkSql <span style="color:#f92672">&lt;&gt;</span> <span style="color:#e6db74">&#39;&#39;</span>)
+ <span style="color:#66d9ef">begin</span>
+   <span style="color:#66d9ef">execute</span>(<span style="color:#f92672">@</span>removeFkSql)
+ <span style="color:#66d9ef">end</span>
+ print <span style="color:#e6db74">&#39;all foreign keys are removed&#39;</span>
+
+ <span style="color:#75715e">-- REMOVE ALL PRIMARY KEYS
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span>removePkSql nvarchar(<span style="color:#66d9ef">MAX</span>) 
+ <span style="color:#66d9ef">set</span> <span style="color:#f92672">@</span>removePkSql <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span> 
+
+ <span style="color:#66d9ef">select</span> <span style="color:#f92672">@</span>removePkSql <span style="color:#f92672">=</span> <span style="color:#f92672">@</span>removePkSql <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;alter table &#39;</span> 
+   <span style="color:#f92672">+</span> QUOTENAME(<span style="color:#66d9ef">CONSTRAINT_SCHEMA</span>) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.&#39;</span> 
+   <span style="color:#f92672">+</span> QUOTENAME(<span style="color:#66d9ef">TABLE_NAME</span>) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39; drop constraint &#39;</span> 
+   <span style="color:#f92672">+</span> QUOTENAME(<span style="color:#66d9ef">CONSTRAINT_NAME</span>) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;; &#39;</span> 
+ <span style="color:#66d9ef">from</span> INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+   <span style="color:#66d9ef">where</span> CONSTRAINT_TYPE <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;PRIMARY KEY&#39;</span>
+
+ <span style="color:#66d9ef">if</span> (<span style="color:#f92672">@</span>removePkSql <span style="color:#f92672">&lt;&gt;</span> <span style="color:#e6db74">&#39;&#39;</span>)
+ <span style="color:#66d9ef">begin</span>
+   <span style="color:#66d9ef">execute</span>(<span style="color:#f92672">@</span>removePkSql)
+ <span style="color:#66d9ef">end</span>
+ print <span style="color:#e6db74">&#39;all primary keys are removed&#39;</span>
+</code></pre></div><h2 id="step-6-increment-all-fk-column-values">Step 6. Increment all FK column values.</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Schema</span> nvarchar(<span style="color:#ae81ff">128</span>),
+   <span style="color:#f92672">@</span><span style="color:#66d9ef">Table</span> NVARCHAR(<span style="color:#ae81ff">128</span>),
+   <span style="color:#f92672">@</span><span style="color:#66d9ef">Column</span> NVARCHAR(<span style="color:#ae81ff">128</span>),
+   <span style="color:#f92672">@</span>DataType NVARCHAR(<span style="color:#ae81ff">128</span>);
+
+ <span style="color:#66d9ef">declare</span> FkCursor <span style="color:#66d9ef">cursor</span> <span style="color:#66d9ef">for</span> 
+   <span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> <span style="color:#f92672">@</span>FkToIncrement
+
+ <span style="color:#66d9ef">open</span> FkCursor
+
+ <span style="color:#66d9ef">fetch</span> <span style="color:#66d9ef">next</span> <span style="color:#66d9ef">from</span> FkCursor 
+   <span style="color:#66d9ef">into</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Schema</span>, <span style="color:#f92672">@</span><span style="color:#66d9ef">Table</span>, <span style="color:#f92672">@</span><span style="color:#66d9ef">Column</span>
+ while <span style="color:#f92672">@@</span>FETCH_STATUS <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+ <span style="color:#66d9ef">begin</span>
+   <span style="color:#66d9ef">execute</span>(<span style="color:#e6db74">&#39;update [&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Schema</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;].[&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Table</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;] 
+</span><span style="color:#e6db74">     set [&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Column</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;] = [&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Column</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;] + &#39;</span> <span style="color:#f92672">+</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Increment</span>)
+   <span style="color:#66d9ef">fetch</span> <span style="color:#66d9ef">next</span> <span style="color:#66d9ef">from</span> FkCursor <span style="color:#66d9ef">into</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Schema</span>, <span style="color:#f92672">@</span><span style="color:#66d9ef">Table</span>, <span style="color:#f92672">@</span><span style="color:#66d9ef">Column</span>
+ <span style="color:#66d9ef">end</span>
+
+ <span style="color:#66d9ef">close</span> FkCursor
+ <span style="color:#66d9ef">deallocate</span> FkCursor
+
+ print <span style="color:#e6db74">&#39;all foreign keys are incremented&#39;</span>
+</code></pre></div><h2 id="step-7-increment-all-identity-columns">Step 7. Increment all identity columns.</h2>
+<p>Identity columns are tricky. You cannot just remove &ldquo;Identity&rdquo; property from them and you also cannot update values in these columns. The easiest way to do this is to create a copy of identity column, drop the original one and rename the copy.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">declare</span> <span style="color:#f92672">@</span>IdentityToIncrement <span style="color:#66d9ef">table</span> 
+ (
+   [<span style="color:#66d9ef">Schema</span>] nvarchar(<span style="color:#ae81ff">128</span>),
+   [<span style="color:#66d9ef">Table</span>] nvarchar(<span style="color:#ae81ff">128</span>),
+   [<span style="color:#66d9ef">Column</span>] nvarchar(<span style="color:#ae81ff">128</span>),
+   [DataType] nvarchar(<span style="color:#ae81ff">128</span>)
+ )
+
+ <span style="color:#75715e">-- SCAN SYSTEM TABLES
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">insert</span> <span style="color:#66d9ef">into</span> <span style="color:#f92672">@</span>IdentityToIncrement 
+   (
+     [<span style="color:#66d9ef">Schema</span>], 
+     [<span style="color:#66d9ef">Table</span>], 
+     [<span style="color:#66d9ef">Column</span>], 
+     [DataType]
+   )
+   <span style="color:#66d9ef">select</span> 
+     TABLE_SCHEMA, 
+     <span style="color:#66d9ef">TABLE_NAME</span>, 
+     <span style="color:#66d9ef">COLUMN_NAME</span>, 
+     DATA_TYPE
+   <span style="color:#66d9ef">from</span> INFORMATION_SCHEMA.COLUMNS
+     <span style="color:#66d9ef">where</span> COLUMNPROPERTY(
+       OBJECT_ID(<span style="color:#66d9ef">TABLE_NAME</span>), 
+       <span style="color:#66d9ef">COLUMN_NAME</span>, 
+       <span style="color:#e6db74">&#39;IsIdentity&#39;</span>) <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+     <span style="color:#66d9ef">and</span> OBJECTPROPERTY(
+       OBJECT_ID(TABLE_SCHEMA <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;.&#39;</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">TABLE_NAME</span>), 
+       <span style="color:#e6db74">&#39;IsTable&#39;</span>) <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+     <span style="color:#66d9ef">and</span> <span style="color:#66d9ef">TABLE_NAME</span> <span style="color:#66d9ef">IN</span> (
+       <span style="color:#66d9ef">select</span> Name 
+       <span style="color:#66d9ef">from</span> <span style="color:#f92672">@</span>TablesToImport
+     )
+
+ <span style="color:#75715e">-- INCREMENT IDENTITY COLUMNS		
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">declare</span> IdentityCursor <span style="color:#66d9ef">cursor</span> <span style="color:#66d9ef">for</span> 
+   <span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> <span style="color:#f92672">@</span>IdentityToIncrement
+
+ <span style="color:#66d9ef">open</span> IdentityCursor
+
+ <span style="color:#66d9ef">fetch</span> <span style="color:#66d9ef">next</span> <span style="color:#66d9ef">from</span> IdentityCursor 
+   <span style="color:#66d9ef">into</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Schema</span>, <span style="color:#f92672">@</span><span style="color:#66d9ef">Table</span>, <span style="color:#f92672">@</span><span style="color:#66d9ef">Column</span>, <span style="color:#f92672">@</span>DataType
+
+ while <span style="color:#f92672">@@</span>FETCH_STATUS <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+ <span style="color:#66d9ef">begin</span>
+   <span style="color:#66d9ef">execute</span>(<span style="color:#e6db74">&#39;alter table [&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Schema</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;].[&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Table</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;] add &#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Column</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;_Copy &#39;</span> <span style="color:#f92672">+</span> <span style="color:#f92672">@</span>DataType <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;&#39;</span>)
+   <span style="color:#66d9ef">execute</span>(<span style="color:#e6db74">&#39;update [&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Schema</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;].[&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Table</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;] set &#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Column</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;_Copy = &#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Column</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;&#39;</span>)
+   <span style="color:#66d9ef">execute</span>(<span style="color:#e6db74">&#39;alter table [&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Schema</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;].[&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Table</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;] drop column &#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Column</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;&#39;</span>)
+   <span style="color:#66d9ef">execute</span>(<span style="color:#e6db74">&#39;exec sp_rename &#39;&#39;[&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Schema</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;].[&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Table</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;].&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Column</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;_Copy&#39;&#39;, &#39;&#39;&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Column</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;&#39;&#39;, &#39;&#39;COLUMN&#39;&#39;&#39;</span>)
+   <span style="color:#66d9ef">execute</span>(<span style="color:#e6db74">&#39;update [&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Schema</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;].[&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Table</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;] set [&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Column</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;] = [&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Column</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;] + &#39;</span> <span style="color:#f92672">+</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Increment</span>)
+   <span style="color:#66d9ef">execute</span>(<span style="color:#e6db74">&#39;alter table [&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Schema</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;].[&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Table</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;] alter column [&#39;</span><span style="color:#f92672">+@</span><span style="color:#66d9ef">Column</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#39;] &#39;</span> <span style="color:#f92672">+</span> <span style="color:#f92672">@</span>DataType <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39; not null&#39;</span>)
+   <span style="color:#66d9ef">fetch</span> <span style="color:#66d9ef">next</span> <span style="color:#66d9ef">from</span> IdentityCursor <span style="color:#66d9ef">into</span> <span style="color:#f92672">@</span><span style="color:#66d9ef">Schema</span>, <span style="color:#f92672">@</span><span style="color:#66d9ef">Table</span>, <span style="color:#f92672">@</span><span style="color:#66d9ef">Column</span>, <span style="color:#f92672">@</span>DataType
+ <span style="color:#66d9ef">end</span>
+
+ <span style="color:#66d9ef">close</span> IdentityCursor
+ <span style="color:#66d9ef">deallocate</span> IdentityCursor
+
+ print <span style="color:#e6db74">&#39;all identity columns are incremented&#39;</span>
+</code></pre></div><h2 id="step-8-handle-constraint-violations">Step 8. Handle constraint violations.</h2>
+<p>At this point of time you have 2 data graphs that potentially can be merged. But you probably have UNIQUE INDEXes or other CHECK CONSTRAINTs that help you to have data consistent. For example you cannot have 2 users with same login. But 2 databases can have same login for different user and here you must make a decision about how to handle this. It&rsquo;s up to you if you want to remove this user or change it&rsquo;s login. </p>
+<h2 id="step-9-merge">Step 9. Merge.</h2>
+<p>Finally we can move data from source database to target one. You can use any tool to automate this process, but you also can use pure SQL that looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"> <span style="color:#75715e">-- MERGE Categories
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">set</span> identity_insert TargetDB.dbo.Categories <span style="color:#66d9ef">on</span>
+ <span style="color:#66d9ef">insert</span> <span style="color:#66d9ef">into</span> TargetDB.dbo.Categories ([Id], [Name])
+ <span style="color:#66d9ef">select</span> [Id],[Name]
+   <span style="color:#66d9ef">from</span> SourceDB.dbo.Categories
+ <span style="color:#66d9ef">set</span> identity_insert TargetDB.dbo.Categories <span style="color:#66d9ef">off</span>
+
+ <span style="color:#75715e">-- MERGE Products
+</span><span style="color:#75715e"></span> <span style="color:#66d9ef">set</span> identity_insert TargetDB.dbo.Products <span style="color:#66d9ef">on</span>
+ <span style="color:#66d9ef">insert</span> <span style="color:#66d9ef">into</span> TargetDB.dbo.Products ([Id], [Name], [CategoryId])
+ <span style="color:#66d9ef">select</span> [Id],[Name],[CategoryId]
+   <span style="color:#66d9ef">from</span> SourceDB.dbo.Products
+ <span style="color:#66d9ef">set</span> identity_insert TargetDB.dbo.Products <span style="color:#66d9ef">off</span>
+</code></pre></div><p>That&rsquo;s it. I hope this was not too complicated. And <a href="https://gist.github.com/lAnubisl/c7656fecd4db571e5ec57d1a7ce8bac1">Here is the Gist with all steps together</a>.</p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>

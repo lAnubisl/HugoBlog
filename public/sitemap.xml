@@ -2,14 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://byalexblog.net/post/azure-api-management-automated-revisions/</loc>
+    <loc>https://byalexblog.net/article/</loc>
+    <lastmod>2021-07-28T23:41:05+03:00</lastmod>
+  </url><url>
+    <loc>https://byalexblog.net/article/azure-api-management-automated-revisions/</loc>
     <lastmod>2021-07-28T23:41:05+03:00</lastmod>
   </url><url>
     <loc>https://byalexblog.net/</loc>
     <lastmod>2021-07-28T23:41:05+03:00</lastmod>
   </url><url>
-    <loc>https://byalexblog.net/post/</loc>
-    <lastmod>2021-07-28T23:41:05+03:00</lastmod>
+    <loc>https://byalexblog.net/article/future-for-business-analysts/</loc>
+    <lastmod>2016-10-20T12:12:40+03:00</lastmod>
+  </url><url>
+    <loc>https://byalexblog.net/article/3-steps-integration-testing-aspnet-mvc/</loc>
+    <lastmod>2016-10-02T09:43:29+03:00</lastmod>
+  </url><url>
+    <loc>https://byalexblog.net/article/merge-sql-databases/</loc>
+    <lastmod>2016-05-27T11:55:25+03:00</lastmod>
+  </url><url>
+    <loc>https://byalexblog.net/article/rabbitmq-poisoned-messages-handeling/</loc>
+    <lastmod>2016-02-09T22:59:03+03:00</lastmod>
+  </url><url>
+    <loc>https://byalexblog.net/article/custom-domain-name-for-azure-vm/</loc>
+    <lastmod>2015-10-04T23:33:03+03:00</lastmod>
+  </url><url>
+    <loc>https://byalexblog.net/article/using-msbuild-to-deploy-composite-web-application/</loc>
+    <lastmod>2015-04-30T17:30:52+03:00</lastmod>
+  </url><url>
+    <loc>https://byalexblog.net/article/the-biggest-problem-of-all-software-developers/</loc>
+    <lastmod>2015-03-29T11:16:38+03:00</lastmod>
+  </url><url>
+    <loc>https://byalexblog.net/article/entity-framework-dynamic-columns/</loc>
+    <lastmod>2015-03-12T20:43:25+03:00</lastmod>
   </url><url>
     <loc>https://byalexblog.net/categories/</loc>
   </url><url>

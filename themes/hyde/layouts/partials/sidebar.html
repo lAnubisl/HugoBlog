@@ -10,7 +10,7 @@
     <nav>
       <ul class="sidebar-nav">
         <li><a href="{{ .Site.BaseURL }}">Home</a> </li>
-        <li><a href="{{ .Site.BaseURL }}post">Posts</a> </li>
+        <li><a href="{{ .Site.BaseURL }}article">Articles</a> </li>
         {{ range .Site.Menus.main -}}
           <li><a href="{{.URL}}" target="_blank"> {{ .Name }} </a></li>
         {{- end }}
