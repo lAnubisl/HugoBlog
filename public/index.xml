@@ -6,7 +6,16 @@
     <description>Recent content on by Alex Code blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 28 Jul 2021 23:41:05 +0300</lastBuildDate><atom:link href="https://byalexblog.net/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 03 Aug 2021 21:22:05 +0300</lastBuildDate><atom:link href="https://byalexblog.net/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>My current command to format hard drive for linux NAS</title>
+      <link>https://byalexblog.net/article/linux-nas-drive-format-command/</link>
+      <pubDate>Tue, 03 Aug 2021 21:22:05 +0300</pubDate>
+      
+      <guid>https://byalexblog.net/article/linux-nas-drive-format-command/</guid>
+      <description>Put it here to just not forget =) Here is my command to format my hard drives for NAS. I came to this when I bought 2 10TB hard drives for Chia coin mining. &lt;code&gt;bash sudo mkfs.ext4 /dev/sde1 -T largefile4 -m 0&lt;/code&gt;</description>
+    </item>
+    
     <item>
       <title>Azure Api Management Automated Revisions</title>
       <link>https://byalexblog.net/article/azure-api-management-automated-revisions/</link>
@@ -22,7 +31,7 @@
       <pubDate>Thu, 20 Oct 2016 12:12:40 +0300</pubDate>
       
       <guid>https://byalexblog.net/article/future-for-business-analysts/</guid>
-      <description>Software products can be much better if anybosy start asking questions about who will use it. We need user researchers called Interaction Designers (IxD) that will prove we are creating something that can be used by people. Where to find them? Business analysts are best people to start looking.</description>
+      <description>Software products can be much better if anybody start asking questions about who will use it. We need user researchers called Interaction Designers (IxD) that will prove we are creating something that can be used by people. Where to find them? Business analysts are best people to start looking.</description>
     </item>
     
     <item>

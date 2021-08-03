@@ -2,7 +2,7 @@
 title: "Future for business analysts"
 date: 2016-10-20T12:12:40+03:00
 draft: false
-Summary: "Software products can be much better if anybosy start asking questions about who will use it. We need user researchers called Interaction Designers (IxD) that will prove we are creating something that can be used by people. Where to find them? Business analysts are best people to start looking."
+Summary: "Software products can be much better if anybody start asking questions about who will use it. We need user researchers called Interaction Designers (IxD) that will prove we are creating something that can be used by people. Where to find them? Business analysts are best people to start looking."
 ---
 
 ![](/images/future-for-business-analysts/future-for-business-analytics.jpg)
