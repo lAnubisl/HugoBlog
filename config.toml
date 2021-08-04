@@ -2,6 +2,8 @@ baseURL = "https://byalexblog.net/"
 languageCode = "en-us"
 title = "by Alex Code blog"
 theme = "hyde"
+disqusShortname = "byalexblog"
+googleAnalytics = "UA-44968940-4"
 
 [Menus]
   main = [
