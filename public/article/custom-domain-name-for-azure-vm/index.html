@@ -3,7 +3,7 @@
 <head>
   <link href="https://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.86.0" />
+  <meta name="generator" content="Hugo 0.96.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +45,7 @@
       </ul>
     </nav>
 
-    <p>&copy; 2021. All rights reserved. </p>
+    <p>&copy; 2022. All rights reserved. </p>
   </div>
 </aside>
 
@@ -65,25 +65,25 @@
 <p>As I said your VM has dynamic IP by default. Nevertheless you can create &ldquo;<a href="https://azure.microsoft.com/en-us/documentation/articles/virtual-networks-reserved-public-ip/">reserved IP address</a>&rdquo; to your subscription. As described on &ldquo;<a href="https://azure.microsoft.com/en-us/pricing/details/ip-addresses/">pricing page</a>&rdquo; you can have up to 5 reserved IP addresses for free.</p>
 <p>Download and install <a href="https://github.com/Azure/azure-powershell/releases">Azure PowerShell</a></p>
 <p>Open it and authorize using the following command</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">Add-AzureAccount 
-</code></pre></div><p>Get available locations using the following command</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">Get-AzureLocation | Select DisplayName
-</code></pre></div><p>you will see something like</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell"> DisplayName
- -----------
- Central US
- South Central US
- East US 2
- North Europe
- Southeast Asia
- East Asia
- Japan West
-</code></pre></div><p>Next you need to add reserved IP address to our subscription and specify location of your choice</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">New-AzureReservedIP <span style="color:#e6db74">&#34;MyReservedIP&#34;</span> -Label <span style="color:#e6db74">&#34;MyReservedIpLabel&#34;</span> -Location <span style="color:#e6db74">&#34;North Europe&#34;</span>
-</code></pre></div><p>Take your VM name. You can find it on Azure web portal in VMs listing table.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>Add-AzureAccount 
+</span></span></code></pre></div><p>Get available locations using the following command</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>Get-AzureLocation | Select DisplayName
+</span></span></code></pre></div><p>you will see something like</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span> DisplayName
+</span></span><span style="display:flex;"><span> -----------
+</span></span><span style="display:flex;"><span> Central US
+</span></span><span style="display:flex;"><span> South Central US
+</span></span><span style="display:flex;"><span> East US 2
+</span></span><span style="display:flex;"><span> North Europe
+</span></span><span style="display:flex;"><span> Southeast Asia
+</span></span><span style="display:flex;"><span> East Asia
+</span></span><span style="display:flex;"><span> Japan West
+</span></span></code></pre></div><p>Next you need to add reserved IP address to our subscription and specify location of your choice</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>New-AzureReservedIP <span style="color:#e6db74">&#34;MyReservedIP&#34;</span> -Label <span style="color:#e6db74">&#34;MyReservedIpLabel&#34;</span> -Location <span style="color:#e6db74">&#34;North Europe&#34;</span>
+</span></span></code></pre></div><p>Take your VM name. You can find it on Azure web portal in VMs listing table.</p>
 <p>Assign your reserved IP address to your vm</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-powershell" data-lang="powershell">Set-AzureReservedIPAssociation -ReservedIPName MyReservedIP -ServiceName MyServiceName
-</code></pre></div><p>Now your VM&rsquo;s public IP should be changed. Also it should be static and you can use it for &lsquo;A&rsquo; DNS record.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>Set-AzureReservedIPAssociation -ReservedIPName MyReservedIP -ServiceName MyServiceName
+</span></span></code></pre></div><p>Now your VM&rsquo;s public IP should be changed. Also it should be static and you can use it for &lsquo;A&rsquo; DNS record.</p>
 <p>Profit!</p>
 
 </div>
@@ -91,7 +91,7 @@
 <h2>Comments</h2>
 <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

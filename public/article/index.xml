@@ -6,7 +6,16 @@
     <description>Recent content in Articles on by Alex Code blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 03 Aug 2021 21:22:05 +0300</lastBuildDate><atom:link href="https://byalexblog.net/article/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 22 Aug 2022 10:20:06 +0200</lastBuildDate><atom:link href="https://byalexblog.net/article/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Deploying dotnet6 app on AWS ElasticBeanstalk Graviton2 with HTTPS termination on EC2 instande</title>
+      <link>https://byalexblog.net/article/dotnet6-elasticbeanstalk/</link>
+      <pubDate>Mon, 22 Aug 2022 10:20:06 +0200</pubDate>
+      
+      <guid>https://byalexblog.net/article/dotnet6-elasticbeanstalk/</guid>
+      <description>On one of my project it was a requirement to reduce the ElasticBeanstalk hosting costs to minimum for dotnet application. The app is a kind of dashboard with limited audience and nothing heavy inside. I decided to use Graviton2 instances (ARM processors on board) in order to acheave best speed/cost ratio.</description>
+    </item>
+    
     <item>
       <title>My current command to format hard drive for linux NAS</title>
       <link>https://byalexblog.net/article/linux-nas-drive-format-command/</link>

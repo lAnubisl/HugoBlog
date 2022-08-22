@@ -3,7 +3,7 @@
 <head>
   <link href="https://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.86.0" />
+  <meta name="generator" content="Hugo 0.96.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +45,7 @@
       </ul>
     </nav>
 
-    <p>&copy; 2021. All rights reserved. </p>
+    <p>&copy; 2022. All rights reserved. </p>
   </div>
 </aside>
 
@@ -55,11 +55,11 @@
   <time datetime=2015-03-12T20:43:25&#43;0300 class="post-date">Thu, Mar 12, 2015</time>
   <p>Data tables are common part of a user interface. Recall how many times you have implemented table based data representation in your project. In some cases when you need something more than just displaying ID and Name, and this &lsquo;something&rsquo; needs additional runtime calculations (for example amount of money spend in last year, top 10 favorite songs, etc.) you can decide to use a database view that does all calculations for you. In more advanced scenarios you have 100 columns in a database view that represent different UI elements and user has an ability to pick some of them that are important right now. If you implement selective database query, you will have positive performance impact based on reduced amount of data that web server needs to fetch into the user&rsquo;s browser. Moreover, an SQL server can optimize the query execution plan, as you are not asking all the columns from database view. In order to implement this your application should be able to recognize, which columns user would like to see. Most likely it would be a string representation of these columns. If you need to use the Entity Framework, here is how it&rsquo;s done.</p>
 <p>Jumping ahead you will be able to use this syntax:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#66d9ef">using</span> (<span style="color:#66d9ef">var</span> ctx = <span style="color:#66d9ef">new</span> MyContext())
-{
-    <span style="color:#66d9ef">return</span> ctx.Customers.SelectProperties(<span style="color:#66d9ef">new</span> [] { <span style="color:#e6db74">&#34;LastName&#34;</span>, <span style="color:#e6db74">&#34;Phone1&#34;</span> });
-}
-</code></pre></div><p><img src="/images/entity-framework-dynamic-columns/entity-framework-dynamic-columns-fig1.jpg" alt="entity-framework-dynamic-columns-fig1"></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> (<span style="color:#66d9ef">var</span> ctx = <span style="color:#66d9ef">new</span> MyContext())
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> ctx.Customers.SelectProperties(<span style="color:#66d9ef">new</span> [] { <span style="color:#e6db74">&#34;LastName&#34;</span>, <span style="color:#e6db74">&#34;Phone1&#34;</span> });
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><img src="/images/entity-framework-dynamic-columns/entity-framework-dynamic-columns-fig1.jpg" alt="entity-framework-dynamic-columns-fig1"></p>
 <p><!-- raw HTML omitted -->Let&rsquo;s see how to achieve a similar result in a more straightforward way for some particular case. Imagine we have the following Customer table:<!-- raw HTML omitted --></p>
 <p><!-- raw HTML omitted -->Customer:<!-- raw HTML omitted --></p>
 <ul>
@@ -74,17 +74,17 @@
 <li>Post Code</li>
 </ul>
 <p>And user would like to see only the Last Name and Phone1. The C# code will look like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#66d9ef">using</span> (<span style="color:#66d9ef">var</span> ctx = <span style="color:#66d9ef">new</span> MyContext())
- {
-     <span style="color:#66d9ef">return</span> ctx.Customers
-         .Select(c =&gt; <span style="color:#66d9ef">new</span>
-             {
-                 LastName = c.LastName,
-                 Phone1 = c.Phone1
-              })
-         .ToList();
- }
-</code></pre></div><p>Ok. Now we need to solve two problems:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> (<span style="color:#66d9ef">var</span> ctx = <span style="color:#66d9ef">new</span> MyContext())
+</span></span><span style="display:flex;"><span> {
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">return</span> ctx.Customers
+</span></span><span style="display:flex;"><span>         .Select(c =&gt; <span style="color:#66d9ef">new</span>
+</span></span><span style="display:flex;"><span>             {
+</span></span><span style="display:flex;"><span>                 LastName = c.LastName,
+</span></span><span style="display:flex;"><span>                 Phone1 = c.Phone1
+</span></span><span style="display:flex;"><span>              })
+</span></span><span style="display:flex;"><span>         .ToList();
+</span></span><span style="display:flex;"><span> }
+</span></span></code></pre></div><p>Ok. Now we need to solve two problems:</p>
 <ul>
 <li>Generate &ldquo;Select&rdquo; statements for any column combination</li>
 <li>Return result as a list of Customer type</li>
@@ -95,183 +95,183 @@
 <li><a href="http://stackoverflow.com/questions/606104/how-to-create-linq-expression-tree-to-select-an-anonymous-type">This answer on StackOverflow</a></li>
 </ul>
 <p>However, the main problem with these solutions is that they are solving only the first problem stated above. The second problem is a bit tricky because there is no straightforward way to return a mapped entity from the EF context using the &ldquo;select new&rdquo; statement. If you try to do something like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#66d9ef">using</span> (<span style="color:#66d9ef">var</span> ctx = <span style="color:#66d9ef">new</span> MyContext())
- {
-     <span style="color:#66d9ef">return</span> ctx.Customers
-         .Select(c =&gt; <span style="color:#66d9ef">new</span> Customer()
-             {
-                 LastName = c.LastName,
-                 Phone1 = c.Phone1
-             })
-         .ToList();
- }
-</code></pre></div><p>you will get the following exception:</p>
-<pre><code>The entity or complex type 'Customer' cannot be constructed in a LINQ to Entities query.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> (<span style="color:#66d9ef">var</span> ctx = <span style="color:#66d9ef">new</span> MyContext())
+</span></span><span style="display:flex;"><span> {
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">return</span> ctx.Customers
+</span></span><span style="display:flex;"><span>         .Select(c =&gt; <span style="color:#66d9ef">new</span> Customer()
+</span></span><span style="display:flex;"><span>             {
+</span></span><span style="display:flex;"><span>                 LastName = c.LastName,
+</span></span><span style="display:flex;"><span>                 Phone1 = c.Phone1
+</span></span><span style="display:flex;"><span>             })
+</span></span><span style="display:flex;"><span>         .ToList();
+</span></span><span style="display:flex;"><span> }
+</span></span></code></pre></div><p>you will get the following exception:</p>
+<pre tabindex="0"><code>The entity or complex type &#39;Customer&#39; cannot be constructed in a LINQ to Entities query.
 </code></pre><p>and you cannot fix this issue as it&rsquo;s the Entity Framework&rsquo;s feature (EF has to track changes in each instance, but it&rsquo;s hard to imagine for the cases with partly-initialized entities). Even if you create a class that is inherited from the mapped class and try to use it in a similar way, you will fail. But this should not stop you if you know what you are doing and for what purpose. The only way out is to create a projection to a type whicht is not mapped (for example anonymous type), then select a number of such instances from a database and <a href="https://social.msdn.microsoft.com/Forums/en-US/cdd1e6b3-11e3-4341-ae90-9f6093010c0c/the-entity-or-complex-type-categories-cannot-be-constructed-in-a-linq-to-entities-query?forum=adodotnetentityframework">use them to create the new instances of the required type in memory using LINQ</a>.</p>
 <p>Taking approach from <a href="http://stackoverflow.com/questions/606104/how-to-create-linq-expression-tree-to-select-an-anonymous-type">answer on StackOverflow</a> as a basis and expanding it to fit our particular goal, we can do the following:</p>
 <p>First let&rsquo;s agree on a method signature. It should take IQueryable<!-- raw HTML omitted --> to allow you to pass any pre-condition for the query. It should also request the properties that needs to be selected from the database.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> ICollection&lt;T&gt; SelectProperties&lt;T&gt;(
-     <span style="color:#66d9ef">this</span> IQueryable&lt;T&gt; source, 
-     IEnumerable&lt;<span style="color:#66d9ef">string</span>&gt; selectedProperties) <span style="color:#66d9ef">where</span> T: <span style="color:#66d9ef">class</span>
-</code></pre></div><p>Then you need to do the following:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> ICollection&lt;T&gt; SelectProperties&lt;T&gt;(
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">this</span> IQueryable&lt;T&gt; source, 
+</span></span><span style="display:flex;"><span>     IEnumerable&lt;<span style="color:#66d9ef">string</span>&gt; selectedProperties) <span style="color:#66d9ef">where</span> T: <span style="color:#66d9ef">class</span>
+</span></span></code></pre></div><p>Then you need to do the following:</p>
 <ol>
 <li>Make sure all properties passed as arguments actually exist in T type.</li>
-<li>Create a Runtime type that will contain set of selected fields (these fields' types must be equal to the corresponding properties from the T type)</li>
+<li>Create a Runtime type that will contain set of selected fields (these fields&rsquo; types must be equal to the corresponding properties from the T type)</li>
 <li>Create mapping from T type properties to the Runtime type fields</li>
 <li>Create Lambda Expression with a projection from T type to the Runtime type</li>
 <li>Invoke the Select method using that Lambda Expression</li>
 </ol>
 <p>Let&rsquo;s do this!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#75715e">// Take properties from the mapped entitiy that match selected properties
-</span><span style="color:#75715e"></span> IDictionary&lt;<span style="color:#66d9ef">string</span>, PropertyInfo&gt; sourceProperties = 
- 	GetTypeProperties&lt;T&gt;(selectedProperties);
-
- <span style="color:#75715e">// Construct runtime type by given property configuration
-</span><span style="color:#75715e"></span> Type runtimeType = RuntimeTypeBuilder.GetRuntimeType(sourceProperties);
- Type sourceType = <span style="color:#66d9ef">typeof</span> (T);
-
- <span style="color:#75715e">// Create instance of source parameter
-</span><span style="color:#75715e"></span> ParameterExpression sourceParameter = Expression.Parameter(sourceType, <span style="color:#e6db74">&#34;t&#34;</span>);
-
- <span style="color:#75715e">// Take fields from generated runtime type
-</span><span style="color:#75715e"></span> FieldInfo[] runtimeTypeFields = runtimeType.GetFields();
-
- <span style="color:#75715e">// Generate bindings from source type to runtime type
-</span><span style="color:#75715e"></span> IEnumerable&lt;MemberBinding&gt; bindingsToRuntimeType = runtimeTypeFields
- 	.Select(field =&gt; Expression.Bind(
- 		field, 
- 		Expression.Property(
- 			sourceParameter, 
- 			sourceProperties[field.Name]
- 		)
- 	));
-
- <span style="color:#75715e">// Generate projection trom T to runtimeType and cast as IQueryable&lt;object&gt;
-</span><span style="color:#75715e"></span> IQueryable&lt;<span style="color:#66d9ef">object</span>&gt; runtimeTypeSelectExpressionQuery 
- 	= GetTypeSelectExpressionQuery&lt;<span style="color:#66d9ef">object</span>&gt;(
- 		sourceType, 
- 		runtimeType,
- 		bindingsToRuntimeType, 
- 		source, 
- 		sourceParameter
- 	);
-
- <span style="color:#75715e">// Get result from database
-</span><span style="color:#75715e"></span> List&lt;<span style="color:#66d9ef">object</span>&gt; listOfObjects = runtimeTypeSelectExpressionQuery.ToList();
-</code></pre></div><p><strong>GetTypeProperties</strong> takes all properties from T type and returns only those, that match the selected properties.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> IDictionary&lt;<span style="color:#66d9ef">string</span>, PropertyInfo&gt; GetTypeProperties&lt;T&gt;(
-             IEnumerable&lt;<span style="color:#66d9ef">string</span>&gt; SelectedProperties) <span style="color:#66d9ef">where</span> T:<span style="color:#66d9ef">class</span>
-         {
-             <span style="color:#66d9ef">var</span> existedProperties = <span style="color:#66d9ef">typeof</span> (T)
-                 .GetProperties()
-                 .ToDictionary(p =&gt; p.Name);
-
-             <span style="color:#66d9ef">return</span> SelectedProperties
-                 .Where(existedProperties.ContainsKey)
-                 .ToDictionary(p =&gt; p, p =&gt; existedProperties[p]);
-         }
-</code></pre></div><p><strong>RuntimeTypeBuilder</strong> is a singleton that holds each generated runtime type in a dictionary for caching purposes. The runtime type generation is done in the following way:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#66d9ef">var</span> assemblyName = <span style="color:#66d9ef">new</span> AssemblyName {Name = <span style="color:#e6db74">&#34;DynamicLinqTypes&#34;</span>};
-
- moduleBuilder = Thread.GetDomain()
-     .DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run)
-     .DefineDynamicModule(assemblyName.Name);
-
- <span style="color:#66d9ef">string</span> typeName = fields.Aggregate(<span style="color:#66d9ef">string</span>.Empty, (current, field) =&gt; 
-     current + (field.Key + <span style="color:#e6db74">&#34;;&#34;</span> + field.Value.Name + <span style="color:#e6db74">&#34;;&#34;</span>));
-
- <span style="color:#66d9ef">var</span> typeBuilder = moduleBuilder.DefineType(
-     typeName, 
-     TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Serializable
- );
-
- <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> property <span style="color:#66d9ef">in</span> properties)
- {
-     typeBuilder.DefineField(
-         property.Key, 
-         property.Value.PropertyType, 
-         FieldAttributes.Public
-     );
- }
-
- <span style="color:#66d9ef">return</span> typeBuilder.CreateType();
-</code></pre></div><p><strong>GetTypeSelectExpressionQuery</strong> is a sequence of methods that generates Lambda Expression, Select statement over it and invokes it:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> IQueryable&lt;TT&gt; GetTypeSelectExpressionQuery&lt;TT&gt;(
-             Type sourceType, 
-             Type targetType, 
-             IEnumerable&lt;MemberBinding&gt; binding, 
-             IQueryable source,
-             ParameterExpression sourceParameter)
-         {
-             LambdaExpression typeSelector =
-                 Expression.Lambda(
-                     Expression.MemberInit(
-                         Expression.New(
-                             targetType.GetConstructor(Type.EmptyTypes)
-                         ),
-                         binding
-                     ),
-                     sourceParameter
-                 );
-
-             MethodCallExpression typeSelectExpression = 
-                 Expression.Call(
-                     <span style="color:#66d9ef">typeof</span>(Queryable),
-                     <span style="color:#e6db74">&#34;Select&#34;</span>,
-                     <span style="color:#66d9ef">new</span>[] { sourceType, targetType },
-                     Expression.Constant(source),
-                     typeSelector
-                 );
-
-             <span style="color:#66d9ef">return</span> Expression.Lambda(typeSelectExpression)
-                 .Compile()
-                 .DynamicInvoke() <span style="color:#66d9ef">as</span> IQueryable&lt;TT&gt;;
-         }
-</code></pre></div><p>Great! We are 50% finished! Now we need to do the following:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#75715e">// Take properties from the mapped entitiy that match selected properties</span>
+</span></span><span style="display:flex;"><span> IDictionary&lt;<span style="color:#66d9ef">string</span>, PropertyInfo&gt; sourceProperties = 
+</span></span><span style="display:flex;"><span> 	GetTypeProperties&lt;T&gt;(selectedProperties);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">// Construct runtime type by given property configuration</span>
+</span></span><span style="display:flex;"><span> Type runtimeType = RuntimeTypeBuilder.GetRuntimeType(sourceProperties);
+</span></span><span style="display:flex;"><span> Type sourceType = <span style="color:#66d9ef">typeof</span> (T);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">// Create instance of source parameter</span>
+</span></span><span style="display:flex;"><span> ParameterExpression sourceParameter = Expression.Parameter(sourceType, <span style="color:#e6db74">&#34;t&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">// Take fields from generated runtime type</span>
+</span></span><span style="display:flex;"><span> FieldInfo[] runtimeTypeFields = runtimeType.GetFields();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">// Generate bindings from source type to runtime type</span>
+</span></span><span style="display:flex;"><span> IEnumerable&lt;MemberBinding&gt; bindingsToRuntimeType = runtimeTypeFields
+</span></span><span style="display:flex;"><span> 	.Select(field =&gt; Expression.Bind(
+</span></span><span style="display:flex;"><span> 		field, 
+</span></span><span style="display:flex;"><span> 		Expression.Property(
+</span></span><span style="display:flex;"><span> 			sourceParameter, 
+</span></span><span style="display:flex;"><span> 			sourceProperties[field.Name]
+</span></span><span style="display:flex;"><span> 		)
+</span></span><span style="display:flex;"><span> 	));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">// Generate projection trom T to runtimeType and cast as IQueryable&lt;object&gt;</span>
+</span></span><span style="display:flex;"><span> IQueryable&lt;<span style="color:#66d9ef">object</span>&gt; runtimeTypeSelectExpressionQuery 
+</span></span><span style="display:flex;"><span> 	= GetTypeSelectExpressionQuery&lt;<span style="color:#66d9ef">object</span>&gt;(
+</span></span><span style="display:flex;"><span> 		sourceType, 
+</span></span><span style="display:flex;"><span> 		runtimeType,
+</span></span><span style="display:flex;"><span> 		bindingsToRuntimeType, 
+</span></span><span style="display:flex;"><span> 		source, 
+</span></span><span style="display:flex;"><span> 		sourceParameter
+</span></span><span style="display:flex;"><span> 	);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">// Get result from database</span>
+</span></span><span style="display:flex;"><span> List&lt;<span style="color:#66d9ef">object</span>&gt; listOfObjects = runtimeTypeSelectExpressionQuery.ToList();
+</span></span></code></pre></div><p><strong>GetTypeProperties</strong> takes all properties from T type and returns only those, that match the selected properties.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span> <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> IDictionary&lt;<span style="color:#66d9ef">string</span>, PropertyInfo&gt; GetTypeProperties&lt;T&gt;(
+</span></span><span style="display:flex;"><span>             IEnumerable&lt;<span style="color:#66d9ef">string</span>&gt; SelectedProperties) <span style="color:#66d9ef">where</span> T:<span style="color:#66d9ef">class</span>
+</span></span><span style="display:flex;"><span>         {
+</span></span><span style="display:flex;"><span>             <span style="color:#66d9ef">var</span> existedProperties = <span style="color:#66d9ef">typeof</span> (T)
+</span></span><span style="display:flex;"><span>                 .GetProperties()
+</span></span><span style="display:flex;"><span>                 .ToDictionary(p =&gt; p.Name);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>             <span style="color:#66d9ef">return</span> SelectedProperties
+</span></span><span style="display:flex;"><span>                 .Where(existedProperties.ContainsKey)
+</span></span><span style="display:flex;"><span>                 .ToDictionary(p =&gt; p, p =&gt; existedProperties[p]);
+</span></span><span style="display:flex;"><span>         }
+</span></span></code></pre></div><p><strong>RuntimeTypeBuilder</strong> is a singleton that holds each generated runtime type in a dictionary for caching purposes. The runtime type generation is done in the following way:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> assemblyName = <span style="color:#66d9ef">new</span> AssemblyName {Name = <span style="color:#e6db74">&#34;DynamicLinqTypes&#34;</span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> moduleBuilder = Thread.GetDomain()
+</span></span><span style="display:flex;"><span>     .DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run)
+</span></span><span style="display:flex;"><span>     .DefineDynamicModule(assemblyName.Name);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">string</span> typeName = fields.Aggregate(<span style="color:#66d9ef">string</span>.Empty, (current, field) =&gt; 
+</span></span><span style="display:flex;"><span>     current + (field.Key + <span style="color:#e6db74">&#34;;&#34;</span> + field.Value.Name + <span style="color:#e6db74">&#34;;&#34;</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">var</span> typeBuilder = moduleBuilder.DefineType(
+</span></span><span style="display:flex;"><span>     typeName, 
+</span></span><span style="display:flex;"><span>     TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Serializable
+</span></span><span style="display:flex;"><span> );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> property <span style="color:#66d9ef">in</span> properties)
+</span></span><span style="display:flex;"><span> {
+</span></span><span style="display:flex;"><span>     typeBuilder.DefineField(
+</span></span><span style="display:flex;"><span>         property.Key, 
+</span></span><span style="display:flex;"><span>         property.Value.PropertyType, 
+</span></span><span style="display:flex;"><span>         FieldAttributes.Public
+</span></span><span style="display:flex;"><span>     );
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> typeBuilder.CreateType();
+</span></span></code></pre></div><p><strong>GetTypeSelectExpressionQuery</strong> is a sequence of methods that generates Lambda Expression, Select statement over it and invokes it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> IQueryable&lt;TT&gt; GetTypeSelectExpressionQuery&lt;TT&gt;(
+</span></span><span style="display:flex;"><span>             Type sourceType, 
+</span></span><span style="display:flex;"><span>             Type targetType, 
+</span></span><span style="display:flex;"><span>             IEnumerable&lt;MemberBinding&gt; binding, 
+</span></span><span style="display:flex;"><span>             IQueryable source,
+</span></span><span style="display:flex;"><span>             ParameterExpression sourceParameter)
+</span></span><span style="display:flex;"><span>         {
+</span></span><span style="display:flex;"><span>             LambdaExpression typeSelector =
+</span></span><span style="display:flex;"><span>                 Expression.Lambda(
+</span></span><span style="display:flex;"><span>                     Expression.MemberInit(
+</span></span><span style="display:flex;"><span>                         Expression.New(
+</span></span><span style="display:flex;"><span>                             targetType.GetConstructor(Type.EmptyTypes)
+</span></span><span style="display:flex;"><span>                         ),
+</span></span><span style="display:flex;"><span>                         binding
+</span></span><span style="display:flex;"><span>                     ),
+</span></span><span style="display:flex;"><span>                     sourceParameter
+</span></span><span style="display:flex;"><span>                 );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>             MethodCallExpression typeSelectExpression = 
+</span></span><span style="display:flex;"><span>                 Expression.Call(
+</span></span><span style="display:flex;"><span>                     <span style="color:#66d9ef">typeof</span>(Queryable),
+</span></span><span style="display:flex;"><span>                     <span style="color:#e6db74">&#34;Select&#34;</span>,
+</span></span><span style="display:flex;"><span>                     <span style="color:#66d9ef">new</span>[] { sourceType, targetType },
+</span></span><span style="display:flex;"><span>                     Expression.Constant(source),
+</span></span><span style="display:flex;"><span>                     typeSelector
+</span></span><span style="display:flex;"><span>                 );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>             <span style="color:#66d9ef">return</span> Expression.Lambda(typeSelectExpression)
+</span></span><span style="display:flex;"><span>                 .Compile()
+</span></span><span style="display:flex;"><span>                 .DynamicInvoke() <span style="color:#66d9ef">as</span> IQueryable&lt;TT&gt;;
+</span></span><span style="display:flex;"><span>         }
+</span></span></code></pre></div><p>Great! We are 50% finished! Now we need to do the following:</p>
 <ol>
 <li>Convert List<!-- raw HTML omitted --> (that is actually List<!-- raw HTML omitted -->) to IQueryable</li>
 <li>Do all steps above in a reverse order to get List<!-- raw HTML omitted --></li>
 </ol>
 <p>Converting to IQueryable:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">     MethodInfo castMethod = <span style="color:#66d9ef">typeof</span>(Queryable)
-         .GetMethod(<span style="color:#e6db74">&#34;Cast&#34;</span>, BindingFlags.Public | BindingFlags.Static)
-         .MakeGenericMethod(runtimeType);
-
-     <span style="color:#75715e">// Cast list&lt;objects&gt; to IQueryable&lt;runtimeType&gt;
-</span><span style="color:#75715e"></span>     IQueryable castedSource = castMethod.Invoke(
-         <span style="color:#66d9ef">null</span>, 
-         <span style="color:#66d9ef">new</span> Object[] { listOfObjects.AsQueryable() }
-     ) <span style="color:#66d9ef">as</span> IQueryable;
-</code></pre></div><p>and the rest of the job:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp">     <span style="color:#75715e">// Create instance of runtime type parameter
-</span><span style="color:#75715e"></span>     ParameterExpression runtimeParameter = Expression.Parameter(runtimeType, <span style="color:#e6db74">&#34;p&#34;</span>);
-
-     IDictionary&lt;<span style="color:#66d9ef">string</span>, FieldInfo&gt; dynamicTypeFieldsDict = 
-         runtimeTypeFields.ToDictionary(f =&gt; f.Name, f =&gt; f);
-
-     <span style="color:#75715e">// Generate bindings from runtime type to source type
-</span><span style="color:#75715e"></span>     IEnumerable&lt;MemberBinding&gt; bindingsToTargetType = sourceProperties.Values
-         .Select(property =&gt; Expression.Bind(
-             property, 
-             Expression.Field(
-                 runtimeParameter, 
-                 dynamicTypeFieldsDict[property.Name]
-             )
-         ));
-
-     <span style="color:#75715e">// Generate projection trom runtimeType to T and cast as IQueryable&lt;object&gt;
-</span><span style="color:#75715e"></span>     IQueryable&lt;T&gt; targetTypeSelectExpressionQuery 
-         = GetTypeSelectExpressionQuery&lt;T&gt;(
-             runtimeType,
-             sourceType, 
-             bindingsToTargetType, 
-             castedSource, 
-             runtimeParameter
-     );
-
-     <span style="color:#75715e">// Return list of T
-</span><span style="color:#75715e"></span>     <span style="color:#66d9ef">return</span> targetTypeSelectExpressionQuery.ToList();
-</code></pre></div><p>That&rsquo;s it!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>     MethodInfo castMethod = <span style="color:#66d9ef">typeof</span>(Queryable)
+</span></span><span style="display:flex;"><span>         .GetMethod(<span style="color:#e6db74">&#34;Cast&#34;</span>, BindingFlags.Public | BindingFlags.Static)
+</span></span><span style="display:flex;"><span>         .MakeGenericMethod(runtimeType);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">// Cast list&lt;objects&gt; to IQueryable&lt;runtimeType&gt;</span>
+</span></span><span style="display:flex;"><span>     IQueryable castedSource = castMethod.Invoke(
+</span></span><span style="display:flex;"><span>         <span style="color:#66d9ef">null</span>, 
+</span></span><span style="display:flex;"><span>         <span style="color:#66d9ef">new</span> Object[] { listOfObjects.AsQueryable() }
+</span></span><span style="display:flex;"><span>     ) <span style="color:#66d9ef">as</span> IQueryable;
+</span></span></code></pre></div><p>and the rest of the job:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>     <span style="color:#75715e">// Create instance of runtime type parameter</span>
+</span></span><span style="display:flex;"><span>     ParameterExpression runtimeParameter = Expression.Parameter(runtimeType, <span style="color:#e6db74">&#34;p&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     IDictionary&lt;<span style="color:#66d9ef">string</span>, FieldInfo&gt; dynamicTypeFieldsDict = 
+</span></span><span style="display:flex;"><span>         runtimeTypeFields.ToDictionary(f =&gt; f.Name, f =&gt; f);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">// Generate bindings from runtime type to source type</span>
+</span></span><span style="display:flex;"><span>     IEnumerable&lt;MemberBinding&gt; bindingsToTargetType = sourceProperties.Values
+</span></span><span style="display:flex;"><span>         .Select(property =&gt; Expression.Bind(
+</span></span><span style="display:flex;"><span>             property, 
+</span></span><span style="display:flex;"><span>             Expression.Field(
+</span></span><span style="display:flex;"><span>                 runtimeParameter, 
+</span></span><span style="display:flex;"><span>                 dynamicTypeFieldsDict[property.Name]
+</span></span><span style="display:flex;"><span>             )
+</span></span><span style="display:flex;"><span>         ));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">// Generate projection trom runtimeType to T and cast as IQueryable&lt;object&gt;</span>
+</span></span><span style="display:flex;"><span>     IQueryable&lt;T&gt; targetTypeSelectExpressionQuery 
+</span></span><span style="display:flex;"><span>         = GetTypeSelectExpressionQuery&lt;T&gt;(
+</span></span><span style="display:flex;"><span>             runtimeType,
+</span></span><span style="display:flex;"><span>             sourceType, 
+</span></span><span style="display:flex;"><span>             bindingsToTargetType, 
+</span></span><span style="display:flex;"><span>             castedSource, 
+</span></span><span style="display:flex;"><span>             runtimeParameter
+</span></span><span style="display:flex;"><span>     );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">// Return list of T</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">return</span> targetTypeSelectExpressionQuery.ToList();
+</span></span></code></pre></div><p>That&rsquo;s it!</p>
 <p>And here is a <a href="https://github.com/lAnubisl/entity-framework-dynamic-queries">working solution in GIT repository</a>. Enjoy!</p>
 
 </div>
@@ -279,7 +279,7 @@
 <h2>Comments</h2>
 <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

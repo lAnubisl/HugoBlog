@@ -3,7 +3,7 @@
 <head>
   <link href="https://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.86.0" />
+  <meta name="generator" content="Hugo 0.96.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +45,7 @@
       </ul>
     </nav>
 
-    <p>&copy; 2021. All rights reserved. </p>
+    <p>&copy; 2022. All rights reserved. </p>
   </div>
 </aside>
 
@@ -56,8 +56,8 @@
   <p><img src="/images/using-msbuild-to-deploy-composite-web-application/MSBUILD_WebApi_AngularJS.png" alt=""></p>
 <p>Nowadays web applications got new trend to be a &ldquo;<a href="https://en.wikipedia.org/wiki/Single-page_application">single page applications</a>&rdquo;. The difference between single page app and usual one is that while usual application has rich backend functionality that is responsible for both business logic and html generation, single page application is focused on having rich JavaScript frontend that is responsible for all user interaction things and &ldquo;thin&rdquo; backend that provides the data source for that JavaScript using web API and JSON. A good example of such web application is <!-- raw HTML omitted --><a href="http://grooveshark.com">Grooveshark</a> - great music platform that makes my working day better all the time. Another interesting trend is that we have a new software engineering area called front-end software engineering. Front end developers are using JavaScript frameworks like <!-- raw HTML omitted --><a href="https://angularjs.org">AngularJS</a>, <a href="http://knockoutjs.com">KnockoutJS</a> and <a href="http://backbonejs.org">BackboneJS</a> and usually they have their own IDE called <a href="https://www.jetbrains.com/webstorm">Webstorm</a> (by JetBrains). From my experience front-end and back end teams can have even different VCS on a project (for example GIT and TFS). As a result developers can have deployment issues because the JavaScript part of the project is not actually part of Visual Studio solution. Here is how to deploy this kind of projects using MSBuild.</p>
 <p>MSBuild is a build engine by Microsoft that allows you to build applications without launching Visual Studio. Here is a common command-line syntax:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmd" data-lang="cmd">C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe<span style="color:#75715e"> MvcApplication.sln</span>
-</code></pre></div><p>Now let&rsquo;s discuss how it works. The executable file MSBuild.exe gets solution file path a single input parameter. Now we need to understand what the solution file actually is. It&rsquo;s a file that contains project files' references in XML format. Each project file (&quot;.csproj&quot;, .&ldquo;vbproj&rdquo;) has a completed description of state (references to another libraries, included source files, local variables) and actions (AKA &ldquo;targets&rdquo;) that could be made with this project. By default Microsoft Visual Studio creates project files with import references for common used target files (for example Microsoft.WebApplication.targets) that makes sense to have in your project type. What you should definitely know is that you can create your own target files that allow you do anything you need with your project using MSBuild tool.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cmd" data-lang="cmd"><span style="display:flex;"><span>C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe<span style="color:#75715e"> MvcApplication.sln</span>
+</span></span></code></pre></div><p>Now let&rsquo;s discuss how it works. The executable file MSBuild.exe gets solution file path a single input parameter. Now we need to understand what the solution file actually is. It&rsquo;s a file that contains project files&rsquo; references in XML format. Each project file (&quot;.csproj&quot;, .&ldquo;vbproj&rdquo;) has a completed description of state (references to another libraries, included source files, local variables) and actions (AKA &ldquo;targets&rdquo;) that could be made with this project. By default Microsoft Visual Studio creates project files with import references for common used target files (for example Microsoft.WebApplication.targets) that makes sense to have in your project type. What you should definitely know is that you can create your own target files that allow you do anything you need with your project using MSBuild tool.</p>
 <p>In this article we will discuss how to do the following:</p>
 <ol>
 <li>Get front-end part of project from GIT repository</li>
@@ -69,101 +69,101 @@
 <li>Deploy them together to hosting environment using any publish mechanism.</li>
 </ol>
 <p>Let&rsquo;s start with variables definition and create a new file &ldquo;config.targets&rdquo; with the following content:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"> <span style="color:#f92672">&lt;Project</span> <span style="color:#a6e22e">ToolsVersion=</span><span style="color:#e6db74">&#34;3.5&#34;</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://schemas.microsoft.com/developer/msbuild/2003&#34;</span><span style="color:#f92672">&gt;</span>
-   <span style="color:#f92672">&lt;Import</span> <span style="color:#a6e22e">Project=</span><span style="color:#e6db74">&#34;Logic.targets&#34;</span><span style="color:#f92672">/&gt;</span>
-   <span style="color:#f92672">&lt;PropertyGroup&gt;</span>
-
-     <span style="color:#75715e">&lt;!-- TFS VARIABLES --&gt;</span>
-     <span style="color:#f92672">&lt;TFSourceLocation&gt;</span>$/MyProject/Main<span style="color:#f92672">&lt;/TFSourceLocation&gt;</span>
-     <span style="color:#f92672">&lt;TFSUserName&gt;</span>UserName<span style="color:#f92672">&lt;/TFSUserName&gt;</span>
-     <span style="color:#f92672">&lt;TFSPassword&gt;</span>Password<span style="color:#f92672">&lt;/TFSPassword&gt;</span>
-
-     <span style="color:#75715e">&lt;!-- GIT VARIABLES --&gt;</span>
-     <span style="color:#f92672">&lt;GITRepo&gt;</span>https://github.com/lAnubisl/byalexblog.git<span style="color:#f92672">&lt;/GITRepo&gt;</span>
-     <span style="color:#f92672">&lt;GITBranch&gt;</span>release<span style="color:#f92672">&lt;/GITBranch&gt;</span>
-
-     <span style="color:#75715e">&lt;!-- LOCAL PATH VARIABLES --&gt;</span>
-     <span style="color:#f92672">&lt;BackEndLocalPath&gt;</span>C:\\MyProject\BackEnd<span style="color:#f92672">&lt;/BackEndLocalPath&gt;</span>
-     <span style="color:#f92672">&lt;FrontEndLocalPath&gt;</span>C:\\MyProject\FrontEnd<span style="color:#f92672">&lt;/FrontEndLocalPath&gt;</span>
-
-     <span style="color:#75715e">&lt;!-- LOCAL TOOLS VARIABLES 
-</span><span style="color:#75715e">     (FOR CASE WHEN THEY ARE NOT REGISTERED IN PATH ENVIRONMENT VARIABLE) --&gt;</span>
-     <span style="color:#f92672">&lt;NPM&gt;</span>&#34;C:\Program Files\nodejs\npm&#34;<span style="color:#f92672">&lt;/NPM&gt;</span>
-     <span style="color:#f92672">&lt;GIT&gt;</span>&#34;C:\Program Files (x86)\Git\bin\git.exe&#34;<span style="color:#f92672">&lt;/GIT&gt;</span>
-     <span style="color:#f92672">&lt;TF&gt;</span>&#34;C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\tf.exe&#34;<span style="color:#f92672">&lt;/TF&gt;</span>
-
-     <span style="color:#75715e">&lt;!-- VISUAL STUDIO PUBLISH PROFILE --&gt;</span>
-     <span style="color:#f92672">&lt;PublishProfile&gt;</span>PublishProfileFileNameWithoutExtension<span style="color:#f92672">&lt;/PublishProfile&gt;</span>
-     <span style="color:#f92672">&lt;PublishUsername&gt;</span>PublishProfileUserName<span style="color:#f92672">&lt;/PublishUsername&gt;</span>
-     <span style="color:#f92672">&lt;PublishPassword&gt;</span>PublishProfilePassword<span style="color:#f92672">&lt;/PublishPassword&gt;</span>
-
-   <span style="color:#f92672">&lt;/PropertyGroup&gt;</span>
- <span style="color:#f92672">&lt;/Project&gt;</span>
-</code></pre></div><p>Here are two majour parts: Import for the rest of targets and PropertyGroup node that contains all Properties definition. I Hope property names are self-descriptive and easy to follow. If so then we focus on the rest of our targets. Create new file &ldquo;Logic.targets&rdquo; with the following content:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;Project</span> <span style="color:#a6e22e">ToolsVersion=</span><span style="color:#e6db74">&#34;3.5&#34;</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://schemas.microsoft.com/developer/msbuild/2003&#34;</span><span style="color:#f92672">&gt;</span>
-   <span style="color:#f92672">&lt;Target</span> <span style="color:#a6e22e">Name=</span><span style="color:#e6db74">&#34;CloneFrontEnd&#34;</span> <span style="color:#a6e22e">Condition=</span><span style="color:#e6db74">&#34;!Exists(&#39;$(FrontEndLocalPath)&#39;)&#34;</span><span style="color:#f92672">&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;mkdir &amp;quot;$(FrontEndLocalPath)&amp;quot;&#34;</span> <span style="color:#f92672">/&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(GIT) clone $(GITRepo)&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(NPM) install -g bower&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;bower install&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(npm) install -g grunt-cli&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(npm) install -g istanbul&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(npm) install&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
-   <span style="color:#f92672">&lt;/Target&gt;</span>
-
-   <span style="color:#f92672">&lt;Target</span> <span style="color:#a6e22e">Name=</span><span style="color:#e6db74">&#34;BuildFrontEnd&#34;</span> <span style="color:#a6e22e">DependsOnTargets=</span><span style="color:#e6db74">&#34;GetLatestFrontEnd;&#34;</span><span style="color:#f92672">&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(GIT) fetch&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(GIT) checkout $(GITBranch)&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(GIT) pull&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(npm) install&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
-     <span style="color:#75715e">&lt;!-- FOR MY CASE GRUNT WILL PUT THE RESULT TO \dist DIRECTORY  --&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;grunt&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
-   <span style="color:#f92672">&lt;/Target&gt;</span>
-
-   <span style="color:#f92672">&lt;Target</span> <span style="color:#a6e22e">Name=</span><span style="color:#e6db74">&#34;MoveFrontEnd&#34;</span> <span style="color:#a6e22e">DependsOnTargets=</span><span style="color:#e6db74">&#34;BuildFrontEnd;&#34;</span><span style="color:#f92672">&gt;</span>
-     <span style="color:#f92672">&lt;CreateItem</span> <span style="color:#a6e22e">Include=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)\dist\**\*&#34;</span><span style="color:#f92672">&gt;</span>
-       <span style="color:#f92672">&lt;Output</span> <span style="color:#a6e22e">TaskParameter=</span><span style="color:#e6db74">&#34;Include&#34;</span> <span style="color:#a6e22e">ItemName=</span><span style="color:#e6db74">&#34;MoveFrontEndSource&#34;</span> <span style="color:#f92672">/&gt;</span>
-     <span style="color:#f92672">&lt;/CreateItem&gt;</span>
-     <span style="color:#75715e">&lt;!-- /portal/ IS THE DIRECTORY WHERE WEB USER EXPECTS TO FIND Angular WEB APPLICATION --&gt;</span>
-     <span style="color:#f92672">&lt;Copy</span> <span style="color:#a6e22e">SourceFiles=</span><span style="color:#e6db74">&#34;@(MoveFrontEndSource)&#34;</span>
-           <span style="color:#a6e22e">DestinationFolder=</span><span style="color:#e6db74">&#34;$(BackEndLocalPath)/Web/portal/%(RecursiveDir)&#34;</span><span style="color:#f92672">&gt;</span>
-    <span style="color:#f92672">&lt;/Copy&gt;</span>
-   <span style="color:#f92672">&lt;/Target&gt;</span>
-
-   <span style="color:#f92672">&lt;Target</span> <span style="color:#a6e22e">Name=</span><span style="color:#e6db74">&#34;PublishBackEnd&#34;</span> <span style="color:#a6e22e">DependsOnTargets=</span><span style="color:#e6db74">&#34;MoveFrontEnd;&#34;</span><span style="color:#f92672">&gt;</span>
-     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(TF) get $(TFSourceLocation) /recursive /version:T /noprompt&#34;</span> 
-           <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(BackEndLocalPath)&#34;</span>  <span style="color:#f92672">/&gt;</span>
-     <span style="color:#f92672">&lt;MSBuild</span> <span style="color:#a6e22e">Projects=</span><span style="color:#e6db74">&#34;$(BoardTraqLocalPath)/Web/WebApplication.sln&#34;</span> <span style="color:#a6e22e">Properties=</span><span style="color:#e6db74">&#34;
-</span><span style="color:#e6db74">              VisualStudioVersion=12.0;
-</span><span style="color:#e6db74">              DeployOnBuild=true;
-</span><span style="color:#e6db74">              Configuration=Debug;
-</span><span style="color:#e6db74">              PublishProfile=$(PublishProfile);
-</span><span style="color:#e6db74">              AllowUntrustedCertificate=true;
-</span><span style="color:#e6db74">              Username=$(PublishUsername);
-</span><span style="color:#e6db74">              password=$(PublishPassword)&#34;</span><span style="color:#f92672">&gt;</span>
-     <span style="color:#f92672">&lt;/MSBuild&gt;</span>
-   <span style="color:#f92672">&lt;/Target&gt;</span>
-
- <span style="color:#f92672">&lt;/Project&gt;</span>
-</code></pre></div><p>Ok. Now BuildFrontEnd target will compile and put Front End application to /dist directory, MoveFrontEnd target will take all files from /dist and copy them into our Back End application sources directory /Web/portal and PublishBackEnd task will publish our Back End application to a web server. Looks great but one more little thing needs to be done.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span> <span style="color:#f92672">&lt;Project</span> <span style="color:#a6e22e">ToolsVersion=</span><span style="color:#e6db74">&#34;3.5&#34;</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://schemas.microsoft.com/developer/msbuild/2003&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;Import</span> <span style="color:#a6e22e">Project=</span><span style="color:#e6db74">&#34;Logic.targets&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;PropertyGroup&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">&lt;!-- TFS VARIABLES --&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;TFSourceLocation&gt;</span>$/MyProject/Main<span style="color:#f92672">&lt;/TFSourceLocation&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;TFSUserName&gt;</span>UserName<span style="color:#f92672">&lt;/TFSUserName&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;TFSPassword&gt;</span>Password<span style="color:#f92672">&lt;/TFSPassword&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">&lt;!-- GIT VARIABLES --&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;GITRepo&gt;</span>https://github.com/lAnubisl/byalexblog.git<span style="color:#f92672">&lt;/GITRepo&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;GITBranch&gt;</span>release<span style="color:#f92672">&lt;/GITBranch&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">&lt;!-- LOCAL PATH VARIABLES --&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;BackEndLocalPath&gt;</span>C:\\MyProject\BackEnd<span style="color:#f92672">&lt;/BackEndLocalPath&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;FrontEndLocalPath&gt;</span>C:\\MyProject\FrontEnd<span style="color:#f92672">&lt;/FrontEndLocalPath&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">&lt;!-- LOCAL TOOLS VARIABLES 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     (FOR CASE WHEN THEY ARE NOT REGISTERED IN PATH ENVIRONMENT VARIABLE) --&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;NPM&gt;</span>&#34;C:\Program Files\nodejs\npm&#34;<span style="color:#f92672">&lt;/NPM&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;GIT&gt;</span>&#34;C:\Program Files (x86)\Git\bin\git.exe&#34;<span style="color:#f92672">&lt;/GIT&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;TF&gt;</span>&#34;C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\tf.exe&#34;<span style="color:#f92672">&lt;/TF&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">&lt;!-- VISUAL STUDIO PUBLISH PROFILE --&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;PublishProfile&gt;</span>PublishProfileFileNameWithoutExtension<span style="color:#f92672">&lt;/PublishProfile&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;PublishUsername&gt;</span>PublishProfileUserName<span style="color:#f92672">&lt;/PublishUsername&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;PublishPassword&gt;</span>PublishProfilePassword<span style="color:#f92672">&lt;/PublishPassword&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;/PropertyGroup&gt;</span>
+</span></span><span style="display:flex;"><span> <span style="color:#f92672">&lt;/Project&gt;</span>
+</span></span></code></pre></div><p>Here are two majour parts: Import for the rest of targets and PropertyGroup node that contains all Properties definition. I Hope property names are self-descriptive and easy to follow. If so then we focus on the rest of our targets. Create new file &ldquo;Logic.targets&rdquo; with the following content:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;Project</span> <span style="color:#a6e22e">ToolsVersion=</span><span style="color:#e6db74">&#34;3.5&#34;</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://schemas.microsoft.com/developer/msbuild/2003&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;Target</span> <span style="color:#a6e22e">Name=</span><span style="color:#e6db74">&#34;CloneFrontEnd&#34;</span> <span style="color:#a6e22e">Condition=</span><span style="color:#e6db74">&#34;!Exists(&#39;$(FrontEndLocalPath)&#39;)&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;mkdir &amp;quot;$(FrontEndLocalPath)&amp;quot;&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(GIT) clone $(GITRepo)&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(NPM) install -g bower&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;bower install&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(npm) install -g grunt-cli&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(npm) install -g istanbul&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(npm) install&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;/Target&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;Target</span> <span style="color:#a6e22e">Name=</span><span style="color:#e6db74">&#34;BuildFrontEnd&#34;</span> <span style="color:#a6e22e">DependsOnTargets=</span><span style="color:#e6db74">&#34;GetLatestFrontEnd;&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(GIT) fetch&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(GIT) checkout $(GITBranch)&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(GIT) pull&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(npm) install&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">&lt;!-- FOR MY CASE GRUNT WILL PUT THE RESULT TO \dist DIRECTORY  --&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;grunt&#34;</span> <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;/Target&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;Target</span> <span style="color:#a6e22e">Name=</span><span style="color:#e6db74">&#34;MoveFrontEnd&#34;</span> <span style="color:#a6e22e">DependsOnTargets=</span><span style="color:#e6db74">&#34;BuildFrontEnd;&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;CreateItem</span> <span style="color:#a6e22e">Include=</span><span style="color:#e6db74">&#34;$(FrontEndLocalPath)\dist\**\*&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">&lt;Output</span> <span style="color:#a6e22e">TaskParameter=</span><span style="color:#e6db74">&#34;Include&#34;</span> <span style="color:#a6e22e">ItemName=</span><span style="color:#e6db74">&#34;MoveFrontEndSource&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;/CreateItem&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">&lt;!-- /portal/ IS THE DIRECTORY WHERE WEB USER EXPECTS TO FIND Angular WEB APPLICATION --&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;Copy</span> <span style="color:#a6e22e">SourceFiles=</span><span style="color:#e6db74">&#34;@(MoveFrontEndSource)&#34;</span>
+</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">DestinationFolder=</span><span style="color:#e6db74">&#34;$(BackEndLocalPath)/Web/portal/%(RecursiveDir)&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/Copy&gt;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;/Target&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;Target</span> <span style="color:#a6e22e">Name=</span><span style="color:#e6db74">&#34;PublishBackEnd&#34;</span> <span style="color:#a6e22e">DependsOnTargets=</span><span style="color:#e6db74">&#34;MoveFrontEnd;&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;exec</span> <span style="color:#a6e22e">command=</span><span style="color:#e6db74">&#34;$(TF) get $(TFSourceLocation) /recursive /version:T /noprompt&#34;</span> 
+</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">WorkingDirectory=</span><span style="color:#e6db74">&#34;$(BackEndLocalPath)&#34;</span>  <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;MSBuild</span> <span style="color:#a6e22e">Projects=</span><span style="color:#e6db74">&#34;$(BoardTraqLocalPath)/Web/WebApplication.sln&#34;</span> <span style="color:#a6e22e">Properties=</span><span style="color:#e6db74">&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              VisualStudioVersion=12.0;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              DeployOnBuild=true;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              Configuration=Debug;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              PublishProfile=$(PublishProfile);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              AllowUntrustedCertificate=true;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              Username=$(PublishUsername);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              password=$(PublishPassword)&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;/MSBuild&gt;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;/Target&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#f92672">&lt;/Project&gt;</span>
+</span></span></code></pre></div><p>Ok. Now BuildFrontEnd target will compile and put Front End application to /dist directory, MoveFrontEnd target will take all files from /dist and copy them into our Back End application sources directory /Web/portal and PublishBackEnd task will publish our Back End application to a web server. Looks great but one more little thing needs to be done.</p>
 <p>The /Web/portal directory and all nested files are not part of Visual Studio project and we need to dynamically attach them to the project for a short period of time when we publish Visual Studio solution.</p>
 <p>What we need is to create <a href="http://blogs.msdn.com/b/webdev/archive/2010/02/09/how-to-extend-target-file-to-include-registry-settings-for-web-project-package.aspx">WebApplication.wpp.targets</a> file with the following content:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt;</span>
- <span style="color:#f92672">&lt;Project</span> <span style="color:#a6e22e">ToolsVersion=</span><span style="color:#e6db74">&#34;4.0&#34;</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://schemas.microsoft.com/developer/msbuild/2003&#34;</span><span style="color:#f92672">&gt;</span>
-   <span style="color:#f92672">&lt;Target</span> <span style="color:#a6e22e">Name=</span><span style="color:#e6db74">&#34;DeployFrontEnd&#34;</span> 
-           <span style="color:#a6e22e">BeforeTargets=</span><span style="color:#e6db74">&#34;CopyAllFilesToSingleFolderForPackage;CopyAllFilesToSingleFolderForMsdeploy&#34;</span><span style="color:#f92672">&gt;</span>
-     <span style="color:#f92672">&lt;ItemGroup&gt;</span>
-       <span style="color:#f92672">&lt;FrontEndFiles</span> <span style="color:#a6e22e">Include=</span><span style="color:#e6db74">&#34;portal\**\*&#34;</span> <span style="color:#f92672">/&gt;</span>
-       <span style="color:#f92672">&lt;FilesForPackagingFromProject</span> <span style="color:#a6e22e">Include=</span><span style="color:#e6db74">&#34;%(FrontEndFiles.Identity)&#34;</span><span style="color:#f92672">&gt;</span>
-         <span style="color:#f92672">&lt;DestinationRelativePath&gt;</span>portal\%(RecursiveDir)%(Filename)%(Extension)<span style="color:#f92672">&lt;/DestinationRelativePath&gt;</span>
-       <span style="color:#f92672">&lt;/FilesForPackagingFromProject&gt;</span>
-     <span style="color:#f92672">&lt;/ItemGroup&gt;</span>
-   <span style="color:#f92672">&lt;/Target&gt;</span>
- <span style="color:#f92672">&lt;/Project&gt;</span>
-</code></pre></div><p>Now let&rsquo;s launch MSBuild:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmd" data-lang="cmd">C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe<span style="color:#75715e"> Config.targets /t:PublishBackEnd</span>
-@<span style="color:#66d9ef">PAUSE</span>
-</code></pre></div><p>The /t: paremeter specifies the name of the target in Config.targets (remember Config.targets imports Logic.targets)</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt;</span>
+</span></span><span style="display:flex;"><span> <span style="color:#f92672">&lt;Project</span> <span style="color:#a6e22e">ToolsVersion=</span><span style="color:#e6db74">&#34;4.0&#34;</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://schemas.microsoft.com/developer/msbuild/2003&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;Target</span> <span style="color:#a6e22e">Name=</span><span style="color:#e6db74">&#34;DeployFrontEnd&#34;</span> 
+</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">BeforeTargets=</span><span style="color:#e6db74">&#34;CopyAllFilesToSingleFolderForPackage;CopyAllFilesToSingleFolderForMsdeploy&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;ItemGroup&gt;</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">&lt;FrontEndFiles</span> <span style="color:#a6e22e">Include=</span><span style="color:#e6db74">&#34;portal\**\*&#34;</span> <span style="color:#f92672">/&gt;</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">&lt;FilesForPackagingFromProject</span> <span style="color:#a6e22e">Include=</span><span style="color:#e6db74">&#34;%(FrontEndFiles.Identity)&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>         <span style="color:#f92672">&lt;DestinationRelativePath&gt;</span>portal\%(RecursiveDir)%(Filename)%(Extension)<span style="color:#f92672">&lt;/DestinationRelativePath&gt;</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#f92672">&lt;/FilesForPackagingFromProject&gt;</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">&lt;/ItemGroup&gt;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">&lt;/Target&gt;</span>
+</span></span><span style="display:flex;"><span> <span style="color:#f92672">&lt;/Project&gt;</span>
+</span></span></code></pre></div><p>Now let&rsquo;s launch MSBuild:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cmd" data-lang="cmd"><span style="display:flex;"><span>C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe<span style="color:#75715e"> Config.targets /t:PublishBackEnd</span>
+</span></span><span style="display:flex;"><span>@<span style="color:#66d9ef">PAUSE</span>
+</span></span></code></pre></div><p>The /t: paremeter specifies the name of the target in Config.targets (remember Config.targets imports Logic.targets)</p>
 <p>That&rsquo;s it! Enjoy!</p>
 
 </div>
@@ -171,7 +171,7 @@
 <h2>Comments</h2>
 <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     

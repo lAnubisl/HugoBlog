@@ -3,7 +3,7 @@
 <head>
   <link href="https://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.86.0" />
+  <meta name="generator" content="Hugo 0.96.0" />
 
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +45,7 @@
       </ul>
     </nav>
 
-    <p>&copy; 2021. All rights reserved. </p>
+    <p>&copy; 2022. All rights reserved. </p>
   </div>
 </aside>
 
@@ -54,8 +54,8 @@
   <h1>My current command to format hard drive for linux NAS</h1>
   <time datetime=2021-08-03T21:22:05&#43;0300 class="post-date">Tue, Aug 3, 2021</time>
   <p>Put it here to just not forget =) Here is my command to format my hard drives for NAS. I came to this when I bought 2 10TB hard drives for Chia coin mining.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo mkfs.ext4 /dev/sde1 -T largefile4 -m <span style="color:#ae81ff">0</span>
-</code></pre></div><p>The <strong>-T largefile4</strong> flag adjusts the amount of inodes that are allocated at the creation of the file system to 1 inode per 4 MB of free space. The less inodes you have the less free space they take. However the less inodes you have the less files you can store in your file system. It is not a problem in case if you have large files.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo mkfs.ext4 /dev/sde1 -T largefile4 -m <span style="color:#ae81ff">0</span>
+</span></span></code></pre></div><p>The <strong>-T largefile4</strong> flag adjusts the amount of inodes that are allocated at the creation of the file system to 1 inode per 4 MB of free space. The less inodes you have the less free space they take. However the less inodes you have the less files you can store in your file system. It is not a problem in case if you have large files.</p>
 <p>The <strong>-m 0</strong> flag prevents super-user reserved blocks. By default, 5% of the filesystem blocks will be reserved for the super-user, to avoid fragmentation and &ldquo;allow root-owned daemons to continue to function correctly after non-privileged processes are prevented from writing to the filesystem&rdquo;</p>
 <p>[<a href="https://wiki.archlinux.org/title/ext4">Source</a>]</p>
 
@@ -64,7 +64,7 @@
 <h2>Comments</h2>
 <div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
