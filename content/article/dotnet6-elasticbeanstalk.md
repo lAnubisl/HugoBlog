@@ -1,5 +1,5 @@
 ---
-title: "Deploying dotnet6 app on AWS ElasticBeanstalk Graviton2 with HTTPS termination on EC2 instande"
+title: "Deploying dotnet6 app on AWS ElasticBeanstalk Graviton2 with HTTPS termination on EC2 instance"
 date: 2022-08-22T10:20:06+02:00
 draft: false
 Summary: "On one of my project it was a requirement to reduce the ElasticBeanstalk hosting costs to minimum for dotnet application. The app is a kind of dashboard with limited audience and nothing heavy inside. I decided to use Graviton2 instances (ARM processors on board) in order to acheave best speed/cost ratio."
