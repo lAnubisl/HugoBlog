@@ -20,22 +20,11 @@ jobs:
           # extended: true
       - name: Build
         run: hugo --minify
-      # - name: Deploy
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   if: github.ref == 'refs/heads/main'
-      #   with:
-      #     github_token: ${{ secrets.API_TOKEN_GITHUB }}
-      #     publish_dir: ./public
-
-      # - name: Push directory to another repository
-      #   id: push_directory
-      #   uses: cpina/github-action-push-to-another-repository@v1.3
-      #   env:
-      #     API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-      #   with:
-      #     source-directory: 'public'
-      #     destination-github-username: 'lanubisl'
-      #     destination-repository-name: 'lanubisl.github.io'
-      #     user-email: alexander.panfilenok@gmail.com
-      #     commit-message: See ORIGIN_COMMIT from $GITHUB_REF
-      #     target-branch: main
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.API_TOKEN_GITHUB }}
+          external_repository: lanubisl/lanubisl.github.io
+          publish_branch: main
+          publish_dir: ./public
