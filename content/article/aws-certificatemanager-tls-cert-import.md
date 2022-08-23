@@ -1,7 +1,7 @@
 ---
 title: "AWS Certificate Manager TLS Certificate import"
 date: 2022-08-23T11:18:30+02:00
-draft: true
+draft: false
 Summary: "When you are going to use TLS certificate with AWS CloudFront, AWS Elastic Load Balancing, AWS API Gateway or other integrated services you can use that by importing the certificate data to the AWS Certificate Manager."
 ---
 
