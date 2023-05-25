@@ -1,7 +1,7 @@
 ---
 title: "Azure Function Serverless Deployment Dotnet"
 date: 2023-05-24T18:53:32Z
-draft: true
+draft: false
 Summary: "Consumption plan is the cheapest way to run your Azure Function. However, it has some limitations. For example, you can not use Web Deploy, Docker Container, Source Control, FTP, Cloud sync or Local Git. You can use External package URL or Zip deploy instead. In this article I will show you how to deploy Dotnet Isolated Azure Function App to Linux Consumption Azure Function resource using Zip Deployment."
 ---
 
