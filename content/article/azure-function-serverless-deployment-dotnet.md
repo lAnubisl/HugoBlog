@@ -36,7 +36,7 @@ resource "azurerm_service_plan" "func_plan" {
   sku_name            = "Y1" # Y1 is the cheapest pricing tier. 'Y' stands for Dynamic. That means Consumption Plan.
 }
 
-# Here we define the function app. The function app is the actual function that will be deployed. It is linked to the service plan and the storage account. https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/windows_function_app
+# Here we define the function app. The function app is the actual function that will be deployed. It is linked to the service plan and the storage account. https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_function_app
 resource "azurerm_linux_function_app" "func" {
   name                       = "func-dotnet-deployment-test"
   location                   = azurerm_resource_group.rg.location
