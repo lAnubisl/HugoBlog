@@ -7,7 +7,7 @@ Summary: "In my previous article, I have explained how to deploy a simple Dotnet
 Consumption plan is the cheapest way to run your Azure Function. However, it has some limitations. For example, you can not use Web Deploy, Docker Container, Source Control, FTP, Cloud sync or Local Git. You can use [External package URL](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies#external-package-url) or [Zip deploy](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies#zip-deploy) instead. In this article I will show you how to deploy Python Azure Function [Programming Model v2](https://techcommunity.microsoft.com/t5/azure-compute-blog/azure-functions-v2-python-programming-model/ba-p/3665168) App to Linux Consumption Azure Function resource using Zip Deployment.
 
 ## Create azure function resource
-I will use [terraform](https://www.terraform.io) to create the azure function resource. The terraform code is shown below. The code is also available on [github](https://github.com/lAnubisl/AzureFunctionDotnetIsolatedLinuxConsumptionZipDeployment/blob/main/Infrastructure/main.tf).
+I will use [terraform](https://www.terraform.io) to create the azure function resource. The terraform code is shown below. The code is also available on [github](https://github.com/lAnubisl/AzureFunctionPythonLinuxConsumptionZipDeployment/blob/main/terraform_infrastructure/main.tf).
 
 ```terraform
 # Here we define the resource group where the function will be deployed. https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group
