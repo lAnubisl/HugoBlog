@@ -1,5 +1,5 @@
 ---
-title: "Azure Sql Database Schema Deployment"
+title: "Breaking Through Barriers: Simplifying CD with Automated Azure SQL Schema Changes!"
 date: 2023-06-10T10:57:21Z
 draft: false
 keywords: "azure, sql, database schema, deployment, dacfx, sqlpackage, azuredevops, gitlab, github"
