@@ -13,6 +13,7 @@
   {{- else -}}
   <title>{{ .Title }} &middot; {{ .Site.Title }}</title>
   {{- end }}
+  <meta name="keywords" content="{{if .IsHome}}{{ $.Site.Params.keywords }}{{else}}{{.Keywords}}{{end}}">
   <meta name="description" content="{{if .IsHome}}{{ $.Site.Params.description }}{{else}}{{.Description}}{{end}}" />
 
   <!-- CSS -->
