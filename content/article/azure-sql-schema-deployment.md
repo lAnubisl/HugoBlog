@@ -117,8 +117,11 @@ Time elapsed 0:01:58.04
 ```
 After the deployment is complete, you can check the database in the [Azure Portal](https://portal.azure.com/). The database should contain the **dbo.Product** table.
 
+You can find the repository with the source code for this article [here](https://github.com/lAnubisl/DatabaseProjectLinux).
+
 # Additional resources
-- [azure/sql-action](https://github.com/azure/sql-action)
+- Repository: [Tutorial](https://github.com/lAnubisl/DatabaseProjectLinux)
+- Repository: [GitHub Action](https://github.com/azure/sql-action)
 - Article: [Microsoft.Build.Sql: the next frontier of SQL projects](https://techcommunity.microsoft.com/t5/azure-sql-blog/microsoft-build-sql-the-next-frontier-of-sql-projects/ba-p/3290628)
 - NuGet package: [Microsoft.Build.Sql](https://www.nuget.org/packages/Microsoft.Build.Sql/)
 - VsCode extension: [SQL Database Projects](https://marketplace.visualstudio.com/items?itemName=ms-mssql.sql-database-projects-vscode)
