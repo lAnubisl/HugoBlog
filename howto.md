@@ -6,4 +6,4 @@ hugo new article/title.md
 hugo server -D
 
 # for remote testing (GitHub Codespaces)
-hugo server --buildDrafts --baseUrl="https://lanubisl-fantastic-computing-machine-v6w44jwg7qh56p-1313.preview.app.github.dev" --appendPort=false
+hugo server --buildDrafts --baseURL "https://lanubisl-fantastic-computing-machine-v6w44jwg7qh56p-1313.preview.app.github.dev" --appendPort=false
