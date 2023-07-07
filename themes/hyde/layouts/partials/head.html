@@ -13,7 +13,12 @@
   {{- else -}}
   <title>{{ .Title }} &middot; {{ .Site.Title }}</title>
   {{- end }}
-  <meta name="keywords" content="{{if .IsHome}}{{ $.Site.Params.keywords }}{{else}}{{.Keywords}}{{end}}">
+  {{if .IsHome}}
+  <meta name="keywords" content="{{ $.Site.Params.keywords }}">
+  {{else}}
+  {{ with .Keywords }}<meta name="keywords" content="{{ range $i, $e := . }}{{ if $i }} {{ end }}{{ $e }}{{ end }}">{{ end }}
+  {{end}}
+  
   <meta name="description" content="{{if .IsHome}}{{ $.Site.Params.description }}{{else}}{{.Description}}{{end}}" />
 
   <!-- CSS -->
