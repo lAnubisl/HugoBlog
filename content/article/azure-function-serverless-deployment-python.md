@@ -2,8 +2,13 @@
 title: "Azure Function Serverless Deployment Python"
 date: 2023-05-26T12:03:58Z
 draft: false
-Summary: "In my previous article, I have explained how to deploy a simple Dotnet Azure Function using ZipDeploy. In this article, I will explain how to do the same for Python Azure Function."
+Summary: "![](/images/azure-function-serverless-deployment-python/logo.png)
+
+Consumption plan is the cheapest way to run your Azure Function. However, it has some limitations. For example, you can not use Web Deploy, Docker Container, Source Control, FTP, Cloud sync or Local Git. You can use [External package URL](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies#external-package-url) or [Zip deploy](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies#zip-deploy) instead. In this article I will show you how to deploy Python Azure Function [Programming Model v2](https://techcommunity.microsoft.com/t5/azure-compute-blog/azure-functions-v2-python-programming-model/ba-p/3665168) App to Linux Consumption Azure Function resource using Zip Deployment."
 ---
+
+![](/images/azure-function-serverless-deployment-python/logo.png)
+
 Consumption plan is the cheapest way to run your Azure Function. However, it has some limitations. For example, you can not use Web Deploy, Docker Container, Source Control, FTP, Cloud sync or Local Git. You can use [External package URL](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies#external-package-url) or [Zip deploy](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies#zip-deploy) instead. In this article I will show you how to deploy Python Azure Function [Programming Model v2](https://techcommunity.microsoft.com/t5/azure-compute-blog/azure-functions-v2-python-programming-model/ba-p/3665168) App to Linux Consumption Azure Function resource using Zip Deployment.
 
 ## Create azure function resource
