@@ -1,9 +1,12 @@
 ---
 title: "Host React frontend app on Azure Storage Account"
-date: 2023-01-10T22:03:40Z
+date: 2023-08-19T11:56:40Z
 draft: false
-summary: "Running a React frontend web application on an Azure Storage account is a great way to host your app with a low cost and high scalability. In this post, we'll go through the steps of setting up a new Azure Storage account and deploying your React app to it."
+summary: "![](/images/react-azure-storage/react-azure-storage-logo.jpg) Running a React frontend web application on an Azure Storage account is a great way to host your app with a low cost and high scalability. In this post, we'll go through the steps of setting up a new Azure Storage account and deploying your React app to it."
 ---
+
+![](/images/react-azure-storage/react-azure-storage-logo.jpg)
+
 Running a [React](https://react.dev/) frontend web application on an [Azure Storage Account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview) is a great way to host your app with a low cost and high scalability.
 Azure Storage Account can handle [up to 20,000](https://learn.microsoft.com/en-us/azure/storage/tables/scalability-targets) requests per second out of the box.
 It has a lot of features that make it a great choice for hosting static websites including:
@@ -13,9 +16,9 @@ It has a lot of features that make it a great choice for hosting static websites
 
 In this post, we'll go through the steps of setting up a new Azure Storage account and deploying your React app to it.
 
-I will pay attention on both manual and automated ways of doing this. So you have the choice to do it manually or use the CI/CD pipeline to automate the process.
+In the end of this post you also can find the links to the [terraform](https://www.terraform.io) template and [GitLab CI/CD pipeline](https://docs.gitlab.com/ee/ci/) that will automate the infrastructure creation and deployment processes.
 
-## Plan
+#### Plan
 
 We are not going to use 'Static Website' feature of Azure Storage Account because it does not meet the requirements of the React apps.
 The thing is that most of the react apps use [react-router](https://reactrouter.com/) to handle routing. 
@@ -28,14 +31,14 @@ So the plan is to:
  - Then create Azure CDN profile and configure it to redirect all requests to the index.html file.
 
 #### Step 1: Resource Group
-First, we need to create an [Azure Resource Group](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal). The resource group is a logical container for grouping your Azure services.
+First, we need to create an [Azure Resource Group](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal). The resource group is a logical container for the resources that we will create later.
 
 ![azure-resource-group-creation](/images/react-azure-storage/azure-resource-group-creation.png)
 The rest of settings can be left as default.
 
 #### Step 2: Storage Account
 
-Next, create a new Azure Storage account by going to the Azure portal and selecting "Create a resource" and then "Storage account." 
+Next, create a new Azure Storage account that will keep our react application ([here is how to do this using Azure Portal](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal)).
 Fill in the necessary details and select a subscription and resource group name created in the previous step.
 
 ![azure-storage-account-creation](/images/react-azure-storage/azure-storage-account-creation.png)
@@ -43,7 +46,7 @@ The rest of settings can be left as default.
 
 #### Step 3: Storage Account Container
 
-Then we need to create a [Storage Account Container](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction#containers).
+Files in Storage Account are stored in [Containers](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction#containers) so we need to create one.
 To do that go to the created Azure Storage account and click on the "+ Container" button.
 
 ![azure-storage-container-creation](/images/react-azure-storage/azure-storage-container-creation.png)
@@ -112,3 +115,7 @@ That means that the rules are configured correctly and your React app should wor
 ![website-routing](/images/react-azure-storage/website-routing.png)
 
 ## Automation
+
+If you want to automate the infrastructure creation process then take a look at [this gist](https://gist.github.com/lAnubisl/a8b95a2391669a5c943271f937dd6752), where you can find the [terraform](https://www.terraform.io) template that will create the Azure Storage account and Azure CDN profile with the endpoint.
+
+If you want to automate the deployment process then take a look at [this gist](https://gist.github.com/lAnubisl/817dc46b63905340ad44fd9a85798fd2), where you can find the GitLab CI/CD pipeline that will deploy your React app to the Azure Storage account.
