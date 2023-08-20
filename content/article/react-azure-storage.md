@@ -2,7 +2,9 @@
 title: "Host React frontend app on Azure Storage Account"
 date: 2023-08-19T11:56:40Z
 draft: false
-summary: "![](/images/react-azure-storage/react-azure-storage-logo.jpg) Running a React frontend web application on an Azure Storage account is a great way to host your app with a low cost and high scalability. In this post, we'll go through the steps of setting up a new Azure Storage account and deploying your React app to it."
+summary: "![](/images/react-azure-storage/react-azure-storage-logo.jpg) 
+
+Running a React frontend web application on an Azure Storage account is a great way to host your app with a low cost and high scalability. In this post, we'll go through the steps of setting up a new Azure Storage account and deploying your React app to it."
 ---
 
 ![](/images/react-azure-storage/react-azure-storage-logo.jpg)
