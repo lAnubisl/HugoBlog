@@ -4,11 +4,11 @@ date: 2023-05-26T12:03:58Z
 draft: false
 keywords: "azure, serverless, azure function, python, deployment, devops, terraform"
 description: "How to deploy Python Azure Function App to Linux Consumption Azure Function resource using Zip Deployment."
-Summary: "![](/images/azure-function-serverless-deployment-python/logo.png)
+Summary: "![](/images/azure-function-serverless-deployment-python/logo.jpg)
 Consumption plan is the cheapest way to run your Azure Function. However, it has some limitations. For example, you can not use Web Deploy, Docker Container, Source Control, FTP, Cloud sync or Local Git. You can use [External package URL](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies#external-package-url) or [Zip deploy](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies#zip-deploy) instead. In this article I will show you how to deploy Python Azure Function [Programming Model v2](https://techcommunity.microsoft.com/t5/azure-compute-blog/azure-functions-v2-python-programming-model/ba-p/3665168) App to Linux Consumption Azure Function resource using Zip Deployment."
 ---
 
-![](/images/azure-function-serverless-deployment-python/logo.png)
+![](/images/azure-function-serverless-deployment-python/logo.jpg)
 
 Consumption plan is the cheapest way to run your Azure Function. However, it has some limitations. For example, you can not use Web Deploy, Docker Container, Source Control, FTP, Cloud sync or Local Git. You can use [External package URL](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies#external-package-url) or [Zip deploy](https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies#zip-deploy) instead. In this article I will show you how to deploy Python Azure Function [Programming Model v2](https://techcommunity.microsoft.com/t5/azure-compute-blog/azure-functions-v2-python-programming-model/ba-p/3665168) App to Linux Consumption Azure Function resource using Zip Deployment.
 

@@ -1,9 +1,11 @@
 ---
 title: "Dapper queries synchronized with MSSQL database schema"
 date: 2022-08-25T12:43:45+02:00
-summary: Dapper is a MicroORM that allows you to control SQL queries you are executing and removes the pain of mapping the dataset results back to your domain model. The thing is that when you specify SQL queries you have to make sure they are valid against the current Database schema. One solution is to use Stored Procedures... other one is this...
+summary: " ![](/images/dapper-queries-synchronized-with-mssql-database-schema/logo.jpg) Dapper is a MicroORM that allows you to control SQL queries you are executing and removes the pain of mapping the dataset results back to your domain model. The thing is that when you specify SQL queries you have to make sure they are valid against the current Database schema. One solution is to use Stored Procedures... other one is this..."
 draft: false
 ---
+
+![](/images/dapper-queries-synchronized-with-mssql-database-schema/logo.jpg)
 
 [Dapper](https://github.com/DapperLib/Dapper) is a Micro ORM that allows you to control SQL queries you are executing and removes the pain of mapping the dataset results back to your domain model. The thing is that when you specify SQL queries you have to make sure they are valid against the current Database schema. One solution is to use [Stored Procedures](https://docs.microsoft.com/en-us/sql/relational-databases/stored-procedures/create-a-stored-procedure?view=sql-server-ver16)... other one is this:
 

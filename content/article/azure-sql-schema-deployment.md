@@ -3,12 +3,12 @@ title: "Breaking Through Barriers: Simplifying CD with Automated Azure SQL Schem
 date: 2023-06-10T10:57:21Z
 draft: false
 keywords: "azure, sql, database schema, deployment, dacfx, sqlpackage, azuredevops, gitlab, github"
-summary: "![](/images/azure-sql-schema-deployment/azuredevops_heart_azuresql.png)
+summary: "![](/images/azure-sql-schema-deployment/logo.jpg)
 Have you ever tried to deploy a Microsoft SQL database schema to Azure SQL using a linux-based CI/CD pipeline? If you did, you probably know that it is not a trivial task. The reason is that the [Microsoft.Data.Tools.Msbuild](https://www.nuget.org/packages/Microsoft.Data.Tools.Msbuild) package is not available for linux. The package contains MSBuild targets and properties that are used to build and deploy database projects. The package is a part of [SQL Server Data Tools (SSDT)](https://docs.microsoft.com/en-us/sql/ssdt/download-sql-server-data-tools-ssdt?view=sql-server-ver15) and it is not available for linux. So if you want to deploy a database schema to Azure SQL using a linux-based CI/CD pipeline you need to use a different approach.
 In this article we will see how to deploy a Microsoft SQL database schema to Azure SQL using **any** linux-based CI/CD pipeline (Gitlab, GitHub, Azure DevOps, etc)."
 description: "How to deploy a Microsoft SQL database schema to Azure SQL using any linux-based CI/CD pipeline (Gitlab, GitHub, Azure DevOps, etc)."
 ---
-![](/images/azure-sql-schema-deployment/azuredevops_heart_azuresql.png)
+![](/images/azure-sql-schema-deployment/logo.jpg)
 
 Have you ever tried to deploy a Microsoft SQL database schema to Azure SQL using a linux-based CI/CD pipeline? If you did, you probably know that it is not a trivial task. The reason is that the [Microsoft.Data.Tools.Msbuild](https://www.nuget.org/packages/Microsoft.Data.Tools.Msbuild) package is not available for linux. The package contains MSBuild targets and properties that are used to build and deploy database projects. The package is a part of [SQL Server Data Tools (SSDT)](https://docs.microsoft.com/en-us/sql/ssdt/download-sql-server-data-tools-ssdt?view=sql-server-ver15) and it is not available for linux. So if you want to deploy a database schema to Azure SQL using a linux-based CI/CD pipeline you need to use a different approach.
 

@@ -4,13 +4,13 @@ date: 2023-07-06T08:32:23Z
 draft: false
 keywords: "azure, apim, storageaccount, blobstorage, terraform"
 description: "How to configure Azure API Management to upload a file to Azure Storage Account"
-summary: "![](/images/azure-apimanagement-to-azure-storage-account/apim_to_blob.png)
+summary: "![](/images/azure-apimanagement-to-azure-storage-account/apim_to_blob.jpg)
 There can be the case when you need to upload a file or metadata to [Azure Storage Account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview) from an application which is outside of your cloud infrastructure. You should not expose your storage account to the internet for that purpose. There are many reasons for that: securuty, flexibility, monitoring etc. The natural solution to acheave the goal is to use something in between of your Azure Storage Account and the public internet. Some kind of HTTP proxy that will manage user authentication, do some simple validations and then pass the request to Storage Account to save the request body data as a blob. [Azure API Management](https://azure.microsoft.com/en-us/products/api-management) is a perfect candidate for that role. It is a fully managed service that means you don't need to create any custom application. It is highly available and scalable. It has a lot of features that can be used for your needs. 
 
 In this article I will show how to configure Azure API Management to upload a file to Azure Storage Account."
 ---
 
-![](/images/azure-apimanagement-to-azure-storage-account/apim_to_blob.png)
+![](/images/azure-apimanagement-to-azure-storage-account/apim_to_blob.jpg)
 
 There can be the case when you need to upload a file or metadata to [Azure Storage Account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview) from an application which is outside of your cloud infrastructure. You should not expose your storage account to the internet for that purpose. There are many reasons for that: securuty, flexibility, monitoring etc. The natural solution to acheave the goal is to use something in between of your Azure Storage Account and the public internet. Some kind of HTTP proxy that will manage user authentication, do some simple validations and then pass the request to Storage Account to save the request body data as a blob. [Azure API Management](https://azure.microsoft.com/en-us/products/api-management) is a perfect candidate for that role. It is a fully managed service that means you don't need to create any custom application. It is highly available and scalable. It has a lot of features that can be used for your needs. 
 

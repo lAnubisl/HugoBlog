@@ -3,7 +3,7 @@ title: "Azure API Management to Azure Service Bus"
 date: 2023-07-08T10:19:45Z
 keywords: "Azure, API Management, Service Bus, Terraform"
 description: "How to use Azure API Management to expose an Azure Service Bus"
-summary: "![](/images/azure-apimanagement-to-azure-service-bus/apim_to_sb.png)
+summary: "![](/images/azure-apimanagement-to-azure-service-bus/apim_to_sb.jpg)
 
 In my [previous post](https://byalexblog.net/article/azure-apimanagement-to-azure-storage-account/) I showed how to use [Azure API Management](https://azure.microsoft.com/en-us/products/api-management) to expose an [Azure Storage Account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview). In this post I will show how to use Azure API Management to expose an [Azure Service Bus](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview).
 
@@ -13,7 +13,7 @@ As in my [previous post](https://byalexblog.net/article/azure-apimanagement-to-a
 I will also define everything in [Terraform](https://www.terraform.io/) so the solution deployment is fully automated."
 draft: false
 ---
-![](/images/azure-apimanagement-to-azure-service-bus/apim_to_sb.png)
+![](/images/azure-apimanagement-to-azure-service-bus/apim_to_sb.jpg)
 
 
 In my [previous post](https://byalexblog.net/article/azure-apimanagement-to-azure-storage-account/) I showed how to use [Azure API Management](https://azure.microsoft.com/en-us/products/api-management) to expose an [Azure Storage Account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview). In this post I will show how to use Azure API Management to expose an [Azure Service Bus](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview).
