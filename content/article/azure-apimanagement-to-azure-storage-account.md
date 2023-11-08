@@ -24,7 +24,7 @@ To make it more interesting I will create two brands: Adidas and Nike. Each bran
 First, I will create two storage accounts and two containers in each of them. One storage account will be used for Adidas brand and another one for Nike brand. Each brand will have its own container.
 Then I will create Azure API Management instance.
 
-``` terraform
+``` hcl
 # Resource group for all resources
 resource "azurerm_resource_group" "rg" {
   name     = "rg-apim-to-blob"
@@ -80,7 +80,7 @@ resource "azurerm_api_management" "apim" {
 Next, I will create a role assignment to allow Azure API Management to access the storage account containers. 
 
 
-``` terraform
+``` hcl
 # Allow APIM to access the 'Adidas' storage account container.
 resource "azurerm_role_assignment" "sc_adidas_role_assignment" {
   scope                = azurerm_storage_container.sc_adidas.resource_manager_id
@@ -96,7 +96,7 @@ resource "azurerm_role_assignment" "sc_nike_role_assignment" {
 }
 ```
 Then I will create two backends in Azure API Management. One backend will be used for Adidas brand and another one for Nike brand. Each backend will be configured to use the corresponding storage account container.
-``` terraform
+``` hcl
 # Backend for Adidas brand
 resource "azurerm_api_management_backend" "apim_backend_adidas" {
   name                = "adidas-storage"
@@ -122,7 +122,7 @@ resource "azurerm_api_management_backend" "apim_backend_nike" {
 
 Next, I will create a 'Product' in Azure API Management. This product will be used to group APIs and apply policies to them. I will also create one API in Azure API Management. This API will be used to upload a file to Azure Storage Account.
 
-``` terraform
+``` hcl
 # Product definition
 resource "azurerm_api_management_product" "apim_product" {
   product_id            = "my_product_id"
@@ -261,7 +261,7 @@ In the outbund policy we will expect the response from the Storage Account HTTP 
 ```
 
 
-``` terraform
+``` hcl
 resource "azurerm_api_management_api_operation_policy" "apim_api_operation_policy_blobstorage" {
   api_name            = azurerm_api_management_api_operation.apim_api_opn.api_name
   api_management_name = azurerm_api_management_api_operation.apim_api_opn.api_management_name

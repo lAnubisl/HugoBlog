@@ -29,7 +29,7 @@ Long story short, the solution is here [main.tf](https://gist.github.com/lAnubis
 
 First of all, we need to create the resource group where we will deploy all the resources.
 
-``` terraform
+``` hcl
 resource "azurerm_resource_group" "rg" {
   name     = "rg-apim-to-servicebus"
   location = "westeurope"
@@ -39,7 +39,7 @@ resource "azurerm_resource_group" "rg" {
 
 Then we need to create the Azure Service Bus namespace topic and two subscriptions. One subscription for Adidas and one for Nike.
 
-``` terraform
+``` hcl
 resource "azurerm_servicebus_namespace" "sbns" {
   name                = "sbns-brands-test-2023"
   location            = azurerm_resource_group.rg.location
@@ -70,7 +70,7 @@ resource "azurerm_servicebus_subscription" "sbts_nike" {
 
 For each subscription, we need to create a rule that will filter the messages based on the brand. The rule is defined using SQL syntax. The rule will be applied to the messages sent to the topic. If the rule is not satisfied, the message will be discarded.
 
-``` terraform
+``` hcl
 
 resource "azurerm_servicebus_subscription_rule" "sbts_rule_adidas" {
   name            = "adidas"
@@ -90,7 +90,7 @@ resource "azurerm_servicebus_subscription_rule" "sbts_rule_nike" {
 
 Now we need to create the Azure API Management instance. We will use the Consumption tier because it is cheaper and it fits the demonstration purposes.
 
-``` terraform
+``` hcl
 resource "azurerm_api_management" "apim" {
   name                = "apim-test-july-2023"
   location            = azurerm_resource_group.rg.location
@@ -106,7 +106,7 @@ resource "azurerm_api_management" "apim" {
 
 And the API Product with the API definition:
 
-``` terraform
+``` hcl
 resource "azurerm_api_management_product" "apim_product" {
   product_id            = "my_product_id"
   api_management_name   = azurerm_api_management.apim.name
@@ -158,7 +158,7 @@ resource "azurerm_api_management_api_operation" "apim_api_opn" {
 Now we need to ling the API Management to the Azure Service Bus.
 First, allow the API Management to access the Azure Service Bus Topic:
 
-``` terraform
+``` hcl
 resource "azurerm_role_assignment" "apim_role_assignment" {
   scope                = azurerm_servicebus_namespace.sbns.id
   role_definition_name = "Azure Service Bus Data Sender"
@@ -168,7 +168,7 @@ resource "azurerm_role_assignment" "apim_role_assignment" {
 Then we need to tell API Management how to connect to the Azure Service Bus Topic.
 (In my [previous post](https://byalexblog.net/article/azure-apimanagement-to-azure-storage-account/ "Azure API Management to Azure Storage Account") I used the concept of Backends, but in this case, I will use the concept of [Named Values](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-properties?tabs=azure-portal "Named Values"))
 
-``` terraform
+``` hcl
 resource "azurerm_api_management_named_value" "nv_sb_base_url" {
   name                = "sb-base-url"
   resource_group_name = azurerm_resource_group.rg.name
@@ -188,7 +188,7 @@ resource "azurerm_api_management_named_value" "nv_sb_queue" {
 
 Finally, we need to create the API Management Policy that will send the message to the Azure Service Bus Topic.
 
-``` terraform
+``` hcl
 resource "azurerm_api_management_api_operation_policy" "apim_api_opn_policy_servicebus" {
   api_name            = azurerm_api_management_api_operation.apim_api_opn.api_name
   api_management_name = azurerm_api_management_api_operation.apim_api_opn.api_management_name
