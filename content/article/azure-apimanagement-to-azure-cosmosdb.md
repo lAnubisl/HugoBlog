@@ -223,7 +223,7 @@ The second endpoint is very similar to the first one. The only difference is tha
     <base />
     <choose>
         <when condition="@{
-            var takeStr = context.Request.MatchedParameters['take'];
+            var takeStr = context.Request.MatchedParameters["take"];
             var takeInt = 0;
             if (!int.TryParse(takeStr, out takeInt)) {
                 return true;
@@ -291,7 +291,7 @@ I will comment some parts of this policy that are different from the previous on
 ```
 <choose>
     <when condition="@{
-        var takeStr = context.Request.MatchedParameters['take'];
+        var takeStr = context.Request.MatchedParameters["take"];
         var takeInt = 0;
         if (!int.TryParse(takeStr, out takeInt)) {
             return true;
