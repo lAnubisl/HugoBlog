@@ -555,7 +555,6 @@ x-ms-xp-role: 2
 As you can see the x-ms-continuation header is here again but there is no nore documents to be returned for the query.
 Yes I see that this time it is an array with an object in it. Don't ask me why. I don't know. Just pass it back to the API Management in the header "from" and you will get an empty response.
 
-``` http
 So, when the consumer will pass it back to the API Management in the header "from" it will get an empty response.
 
 ``` http
