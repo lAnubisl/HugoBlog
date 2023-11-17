@@ -83,7 +83,7 @@ zip -r ../publish.zip .
 cd ..
 ```
 Double check that you generate the zip file correctly. If you don't then you can face an issue when Azure says 'Deployment successful' but the function app is not working.
-The archive should not contain the folder with the function app it shoukd contain the files from the folder.
+The archive should not contain the folder with the function app it should contain the files from the folder.
 
 Here is the example of the incorrect archive structure.
 ``` bash
