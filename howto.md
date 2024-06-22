@@ -6,4 +6,4 @@ hugo new article/title.md
 hugo server -D
 
 # for remote testing (GitHub Codespaces)
-hugo server --buildDrafts --baseURL "https://fantastic-eureka-g4699v64p6hpp79-1313.app.github.dev/" --appendPort=false
+hugo server --buildDrafts --baseURL "https://improved-space-enigma-pj9vv59r6725q-1313.app.github.dev/" --appendPort=false
