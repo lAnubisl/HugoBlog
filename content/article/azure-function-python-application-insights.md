@@ -2,7 +2,7 @@
 title: "Azure Function (Python) Application Insights"
 date: 2024-10-05T11:32:19Z
 draft: false
-keywords: "azure, azure function, python, logging, opentelimetry, application insights"
+keywords: "azure, azure function, python, logging, opentelemetry, application insights"
 description: "How to configure Application Insights logging for Python Azure Function"
 Summary: "
 I have some Python Azure Functions and recently I decided to review and improve the logging mechanism for them (Azure Application Insights integration). What I wanted to acheave is to have visual spans for individual
@@ -66,5 +66,5 @@ That's it.
 
 ### Longer story (also short) with links:
 
-There is no [automatic dependency and transaction diagnostic auto collection](https://learn.microsoft.com/en-us/azure/azure-monitor/app/asp-net-dependencies#dependency-auto-collection). There are also no samples of [how to track dependencies manually](https://learn.microsoft.com/en-us/azure/azure-monitor/app/api-custom-events-metrics#trackdependency) for python Azure Functions. [The Azure Functions Python Developer Reference Guide](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=get-started%2Casgi%2Capplication-level&pivots=python-mode-decorators#log-custom-telemetry) describes how to Log Custom Telimetry using OpenCensus library. You can
+There is no [automatic dependency and transaction diagnostic auto collection](https://learn.microsoft.com/en-us/azure/azure-monitor/app/asp-net-dependencies#dependency-auto-collection). There are also no samples of [how to track dependencies manually](https://learn.microsoft.com/en-us/azure/azure-monitor/app/api-custom-events-metrics#trackdependency) for python Azure Functions. [The Azure Functions Python Developer Reference Guide](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=get-started%2Casgi%2Capplication-level&pivots=python-mode-decorators#log-custom-telemetry) describes how to Log Custom Telemetry using OpenCensus library. You can
 also find samples of how to use this library [Monitor a distributed system by using Application Insights and OpenCensus](https://learn.microsoft.com/en-us/azure/architecture/guide/devops/monitor-with-opencensus-application-insights). However... you should not use it because [Azure Monitor support for OpenCensus will end on 30 September 2024 - transition to using Azure Monitor OpenTelemetry Python Distro](https://azure.microsoft.com/en-us/updates/python-opencensus-retirement/#:~:text=On%2030%20September%202024%2C%20we,a%20single%20line%2Dof%2Dcode). Here is the guide for [Migrating from OpenCensus Python SDK and Azure Monitor OpenCensus exporter for Python to Azure Monitor OpenTelemetry Python Distro](https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-python-opencensus-migrate) and step-by-step guide: [Enable Azure Monitor OpenTelemetry for .NET, Node.js, Python, and Java applications](https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-enable?tabs=python#enable-opentelemetry-with-application-insights)
