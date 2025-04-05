@@ -123,5 +123,5 @@ resource "azurerm_virtual_machine_extension" "script" {
 ```
 
 ## Conclusion
-In this article, we have discussed how to set up an On-Premises Data Gateway (Self-Hosted) on an Azure VM using Azure Automation. We have also discussed how to automate the installation and configuration of the gateway using PowerShell and Terraform. This solution allows us to securely connect Power BI to our private Azure SQL Database without exposing it to the public internet.
+In this article, we have discussed how to set up an On-Premises Data Gateway (Self-Hosted) on an Azure VM using DataGateway module. We have also discussed how to automate the installation and configuration of the gateway using PowerShell and Terraform. This solution allows us to securely connect Power BI to our private Azure SQL Database without exposing it to the public internet.
 This approach also allows for easy re-deployment and disaster recovery in case of VM or service failures. The use of the DataGateway PowerShell module allows for a more automated approach to managing the gateway, while the Terraform code allows for easy deployment and management of the Azure resources.
