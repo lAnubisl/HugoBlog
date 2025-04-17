@@ -15,3 +15,8 @@ googleAnalytics = "UA-44968940-4"
   description = "Smart thoughts... and not very smart too!"
   keywords = "software, development, solution architecture, azure, aws, devops, automation, blog, articles"
   layoutReverse = false
+
+[markup]
+  [markup.highlight]
+    style = 'catppuccin-latte'
+    lineNos = false
