@@ -5,12 +5,12 @@ keywords: "Azure, API Management, CosmosDB, Terraform"
 description: "How to use Azure API Management to expose Azure CosmosDB"
 summary: "![](/images/azure-apimanagement-to-azure-cosmosdb/apim_cosmosdb_logo.jpeg)
 
-In my previous posts I have showed you how to connect [Azure API Management to Azure Service Bus](https://byalexblog.net/article/azure-apimanagement-to-azure-service-bus/) and [Azure API Management to Azure Storage account](https://byalexblog.net/article/azure-apimanagement-to-azure-storage-account/). In this post I will show you how to connect Azure API Management to Azure Cosmosdb."
+In my previous posts I have showed you how to connect [Azure API Management to Azure Service Bus](https://blog.byalex.dev/article/azure-apimanagement-to-azure-service-bus/) and [Azure API Management to Azure Storage account](https://blog.byalex.dev/article/azure-apimanagement-to-azure-storage-account/). In this post I will show you how to connect Azure API Management to Azure Cosmosdb."
 draft: false
 ---
 
 ![](/images/azure-apimanagement-to-azure-cosmosdb/apim_cosmosdb_logo.jpeg)
-In my previous posts I have showed you how to connect [Azure API Management to Azure Service Bus](https://byalexblog.net/article/azure-apimanagement-to-azure-service-bus/) and [Azure API Management to Azure Storage account](https://byalexblog.net/article/azure-apimanagement-to-azure-storage-account/). In this post I will show you how to connect Azure API Management to Azure Cosmosdb.
+In my previous posts I have showed you how to connect [Azure API Management to Azure Service Bus](https://blog.byalex.dev/article/azure-apimanagement-to-azure-service-bus/) and [Azure API Management to Azure Storage account](https://blog.byalex.dev/article/azure-apimanagement-to-azure-storage-account/). In this post I will show you how to connect Azure API Management to Azure Cosmosdb.
 > At this point of time (7 Now 2023) Azure API Management has the policy [cosmosdb-data-source](https://learn.microsoft.com/en-us/azure/api-management/cosmosdb-data-source-policy) in preview and it is not supported in the Consumption Plan. So, you need to have Developer, Basic, Standard or Premium plan to use this policy. 
 And even then I would not recommend to use this policy in production environment yet.
 

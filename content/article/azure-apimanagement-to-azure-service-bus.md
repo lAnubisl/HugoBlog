@@ -5,22 +5,22 @@ keywords: "Azure, API Management, Service Bus, Terraform"
 description: "How to use Azure API Management to expose an Azure Service Bus"
 summary: "![](/images/azure-apimanagement-to-azure-service-bus/apim_to_sb.jpg)
 
-In my [previous post](https://byalexblog.net/article/azure-apimanagement-to-azure-storage-account/ 'Azure API Management to Azure Storage Account') I showed how to use [Azure API Management](https://azure.microsoft.com/en-us/products/api-management 'Azure API Management') to expose an [Azure Storage Account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview 'Azure Storage Account'). In this post I will show how to use Azure API Management to expose an [Azure Service Bus](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview 'Azure Service Bus').
+In my [previous post](https://blog.byalex.dev/article/azure-apimanagement-to-azure-storage-account/ 'Azure API Management to Azure Storage Account') I showed how to use [Azure API Management](https://azure.microsoft.com/en-us/products/api-management 'Azure API Management') to expose an [Azure Storage Account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview 'Azure Storage Account'). In this post I will show how to use Azure API Management to expose an [Azure Service Bus](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview 'Azure Service Bus').
 
 This combination is useful when you have a fire and forget HTTP endpoint and you expect irregular traffic. For example, you are designing a mobile application crash reporting system. You want to send the crash report to the server and forget about it. You don't want to wait for the response. You don't want to block the user interface. You don't want to retry if the server is not available. It might happen that a new mobile app version has a significant bug and you get a lot of crash reports. In this case, it is reasonable to use Azure Service Bus to queue the crash reports for peak times and process them later.
 
-As in my [previous post](https://byalexblog.net/article/azure-apimanagement-to-azure-storage-account/ 'Azure API Management to Azure Storage Account'), I will use a scenario with two brands (Adidas and Nike) to show you the flexibility of the combination Azure API Management plus Azure Service Bus.
+As in my [previous post](https://blog.byalex.dev/article/azure-apimanagement-to-azure-storage-account/ 'Azure API Management to Azure Storage Account'), I will use a scenario with two brands (Adidas and Nike) to show you the flexibility of the combination Azure API Management plus Azure Service Bus.
 I will also define everything in [Terraform](https://www.terraform.io/ 'Terraform') so the solution deployment is fully automated."
 draft: false
 ---
 ![](/images/azure-apimanagement-to-azure-service-bus/apim_to_sb.jpg)
 
 
-In my [previous post](https://byalexblog.net/article/azure-apimanagement-to-azure-storage-account/ "Azure API Management to Azure Storage Account") I showed how to use [Azure API Management](https://azure.microsoft.com/en-us/products/api-management "Azure API Management") to expose an [Azure Storage Account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview "Azure Storage Account"). In this post I will show how to use Azure API Management to expose an [Azure Service Bus](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview "Azure Service Bus").
+In my [previous post](https://blog.byalex.dev/article/azure-apimanagement-to-azure-storage-account/ "Azure API Management to Azure Storage Account") I showed how to use [Azure API Management](https://azure.microsoft.com/en-us/products/api-management "Azure API Management") to expose an [Azure Storage Account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview "Azure Storage Account"). In this post I will show how to use Azure API Management to expose an [Azure Service Bus](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview "Azure Service Bus").
 
 This combination is useful when you have a fire and forget HTTP endpoint and you expect irregular traffic. For example, you are designing a mobile application crash reporting system. You want to send the crash report to the server and forget about it. You don't want to wait for the response. You don't want to block the user interface. You don't want to retry if the server is not available. It might happen that a new mobile app version has a significant bug and you get a lot of crash reports. In this case, it is reasonable to use Azure Service Bus to queue the crash reports for peak times and process them later.
 
-As in my [previous post](https://byalexblog.net/article/azure-apimanagement-to-azure-storage-account/ "Azure API Management to Azure Storage Account"), I will use a scenario with two brands (Adidas and Nike) to show you the flexibility of the combination Azure API Management plus Azure Service Bus.
+As in my [previous post](https://blog.byalex.dev/article/azure-apimanagement-to-azure-storage-account/ "Azure API Management to Azure Storage Account"), I will use a scenario with two brands (Adidas and Nike) to show you the flexibility of the combination Azure API Management plus Azure Service Bus.
 I will also define everything in [Terraform](https://www.terraform.io/ "Terraform") so the solution deployment is fully automated.
 
 Long story short, the solution is here [main.tf](https://gist.github.com/lAnubisl/07bdb00d43a7a98252cdd6da7f748286 "Terraform Template").
@@ -166,7 +166,7 @@ resource "azurerm_role_assignment" "apim_role_assignment" {
 }
 ```
 Then we need to tell API Management how to connect to the Azure Service Bus Topic.
-(In my [previous post](https://byalexblog.net/article/azure-apimanagement-to-azure-storage-account/ "Azure API Management to Azure Storage Account") I used the concept of Backends, but in this case, I will use the concept of [Named Values](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-properties?tabs=azure-portal "Named Values"))
+(In my [previous post](https://blog.byalex.dev/article/azure-apimanagement-to-azure-storage-account/ "Azure API Management to Azure Storage Account") I used the concept of Backends, but in this case, I will use the concept of [Named Values](https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-properties?tabs=azure-portal "Named Values"))
 
 ``` hcl
 resource "azurerm_api_management_named_value" "nv_sb_base_url" {
@@ -216,7 +216,7 @@ XML
 }
 ```
 
-As in my [previous post](https://byalexblog.net/article/azure-apimanagement-to-azure-storage-account/ "Azure API Management to Azure Storage Account") I will show you all the policy in parts.
+As in my [previous post](https://blog.byalex.dev/article/azure-apimanagement-to-azure-storage-account/ "Azure API Management to Azure Storage Account") I will show you all the policy in parts.
 
 ### Inbound
 
